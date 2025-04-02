@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
   const handleNoteCreated = () => {
     // You could refresh PC or member data here if needed
   };
-
+ 
   // return (
   //   <Layout>
   //     <div className="dashboard-container">
