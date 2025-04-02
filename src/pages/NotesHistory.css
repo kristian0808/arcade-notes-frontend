@@ -1,0 +1,124 @@
+.notes-history-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 3);
+  height: calc(100vh - var(--header-height) - var(--footer-height) - var(--spacing-unit) * 4);
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.notes-filter {
+  display: flex;
+  gap: calc(var(--spacing-unit));
+}
+
+.filter-button {
+  background-color: white;
+  border: 1px solid var(--gray);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  border-color: var(--primary-color);
+}
+
+.filter-button.active {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
+}
+
+.notes-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 2);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.notes-loading, .notes-error, .notes-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--spacing-unit) * 5);
+  text-align: center;
+  color: var(--text-secondary);
+  height: 100%;
+}
+
+.notes-error {
+  color: var(--danger-color);
+}
+
+/* Resolved note styling */
+.note-item-container.resolved {
+  opacity: 0.7;
+}
+
+.note-status-text {
+  font-size: 12px;
+  color: #757575;
+  margin-top: -10px;
+  padding: 0 16px 8px;
+  text-align: right;
+}
+
+/* Scrollbar styling */
+.notes-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-dark) transparent;
+}
+
+.notes-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notes-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notes-content::-webkit-scrollbar-thumb {
+  background-color: var(--gray-dark);
+  border-radius: 3px;
+}
+
+@media screen and (max-width: 768px) {
+  .notes-history-container {
+    padding: var(--spacing-unit);
+    height: calc(100vh - var(--header-height) - var(--footer-height) - var(--spacing-unit) * 2);
+  }
+  
+  .notes-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--spacing-unit));
+  }
+  
+  .notes-filter {
+    width: 100%;
+    gap: calc(var(--spacing-unit) * 0.5);
+  }
+  
+  .filter-button {
+    flex: 1;
+    font-size: 13px;
+    padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit));
+  }
+}
