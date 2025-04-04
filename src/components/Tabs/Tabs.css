@@ -1,0 +1,343 @@
+/* Tab Manager Container */
+.tab-manager {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+  
+  .tab-manager-empty,
+  .tab-manager-no-active-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+  
+  .tab-manager-no-active-tab h4 {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+  }
+  
+  .create-tab-button {
+    margin-top: 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .create-tab-button:hover {
+    background-color: var(--primary-light);
+  }
+  
+  /* Tab View */
+  .tab-view {
+    position: relative;
+    width: 100%;
+  }
+  
+  .tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray);
+  }
+  
+  .tab-title h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+  
+  .tab-meta {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  
+  .close-tab-button {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .close-tab-button:hover:not(:disabled) {
+    background-color: #b71c1c;
+  }
+  
+  .close-tab-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .tab-error {
+    color: var(--danger-color);
+    margin-bottom: 16px;
+    padding: 8px;
+    background-color: rgba(211, 47, 47, 0.1);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  /* Tab Search */
+  .tab-search {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  
+  .tab-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--gray);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+  }
+  
+  .tab-search input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+  }
+  
+  .search-loading {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+  }
+  
+  .search-error {
+    color: var(--danger-color);
+    margin-top: 4px;
+    font-size: 12px;
+  }
+  
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid var(--gray);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: var(--shadow-md);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  
+  .search-result-item {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .search-result-item:hover {
+    background-color: var(--gray-light);
+  }
+  
+  .search-result-item .product-name {
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+  
+  .search-result-item .product-price {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-color);
+  }
+  
+  /* Tab Items */
+  .tab-items {
+    flex: 1;
+  }
+  
+  .tab-items h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: var(--text-primary);
+  }
+  
+  .no-items {
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-align: center;
+    padding: 16px;
+    background-color: var(--gray-light);
+    border-radius: 4px;
+  }
+  
+  .tab-items-list {
+    margin-bottom: 16px;
+  }
+  
+  .tab-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray);
+  }
+  
+  .tab-item:last-child {
+    border-bottom: none;
+  }
+  
+  .item-info {
+    flex: 1;
+  }
+  
+  .item-name {
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+  
+  .item-price {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  
+  .item-quantity {
+    display: flex;
+    align-items: center;
+    margin: 0 12px;
+  }
+  
+  .quantity-btn {
+    width: 24px;
+    height: 24px;
+    background-color: var(--gray-light);
+    border: 1px solid var(--gray);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  
+  .quantity-btn:hover:not(:disabled) {
+    background-color: var(--gray);
+  }
+  
+  .quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .item-quantity span {
+    margin: 0 8px;
+    min-width: 16px;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .item-total {
+    font-weight: 500;
+    font-size: 14px;
+    margin-right: 12px;
+    min-width: 60px;
+    text-align: right;
+  }
+  
+  .remove-item-btn {
+    background: transparent;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+  }
+  
+  .remove-item-btn:hover:not(:disabled) {
+    background-color: rgba(211, 47, 47, 0.1);
+  }
+  
+  .remove-item-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .tab-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid var(--gray-dark);
+  }
+  
+  .tab-total h4 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .total-amount {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .tab-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+  
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    .tab-header {
+      flex-direction: column;
+    }
+    
+    .close-tab-button {
+      margin-top: 8px;
+      align-self: flex-end;
+    }
+    
+    .tab-item {
+      flex-wrap: wrap;
+    }
+    
+    .item-info {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    
+    .item-quantity,
+    .item-total {
+      margin-right: auto;
+    }
+  }

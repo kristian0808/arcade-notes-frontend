@@ -5,7 +5,7 @@ export enum PcStatus {
     MAINTENANCE = 'maintenance'
   }
   
-  export interface Pc {
+export interface Pc {
     pc_id: string;
     pc_name: string;
     status: PcStatus;
@@ -13,4 +13,5 @@ export enum PcStatus {
     current_member_account?: string;
     time_left?: string;
     has_notes?: boolean; // Flag to indicate if there are active notes for this PC
-  }
+    has_active_tab?: boolean; // Flag to indicate if the current user has an active tab
+}
