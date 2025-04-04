@@ -44,11 +44,18 @@ const PcCard: React.FC<PcCardProps> = ({ pc, isSelected, onClick }) => {
         <div className="pc-status-text-display">{getStatusText()}</div>
       )}
       
-      {pc.has_notes && (
-        <div className="pc-has-notes" title="Has active notes">
-          📝
-        </div>
-      )}
+      <div className="pc-indicators">
+        {pc.has_notes && (
+          <div className="pc-has-notes" title="Has active notes">
+            📝
+          </div>
+        )}
+        {pc.has_active_tab && (
+          <div className="pc-has-tab" title="Has active tab">
+            🛒
+          </div>
+        )}
+      </div>
     </div>
   );
 };

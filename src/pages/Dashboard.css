@@ -90,3 +90,23 @@
     min-height: 300px;
   }
 }
+
+/* Add this to your existing Dashboard.css file */
+
+.dashboard-tabs-notes {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* If your sidebar is getting too cramped, you might want to adjust the heights */
+.dashboard-members {
+  height: 35%;  /* Reduced from 40% */
+  min-height: 200px;
+}
+
+.dashboard-tabs-notes {
+  height: 65%;  /* Increased from 60% */
+  overflow-y: auto;
+}

@@ -81,12 +81,18 @@
   padding: 4px 0;
 }
 
-.pc-has-notes {
+.pc-indicators {
   position: absolute;
-  top: calc(var(--spacing-unit));
-  right: calc(var(--spacing-unit));
-  font-size: 16px;
-  color: #333;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 8px;
+}
+
+.pc-has-notes,
+.pc-has-tab {
+  font-size: 1.2em;
+  cursor: help;
 }
 
 @media screen and (max-width: 768px) {

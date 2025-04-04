@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Pc } from '../../types/Pc';
 import PcCard from './PcCard';
 import { IcafeApi } from '../../api/icafeApi';
-import { NotesApi } from '../../api/notesApi';
+// import { NotesApi } from '../../api/notesApi';
 import './PcGrid.css';
 
 interface PcGridProps {
@@ -61,8 +61,8 @@ const PcGrid: React.FC<PcGridProps> = ({ onPcSelect }) => {
       <div className="pc-grid">
         {pcs.map((pc) => (
           <PcCard 
-            key={pc.pc_id} 
-            pc={pc} 
+          key={`${pc.pc_id}-${pc.pc_name}`}
+          pc={pc} 
             isSelected={selectedPc?.pc_id === pc.pc_id}
             onClick={() => handlePcClick(pc)} 
           />
