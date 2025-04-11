@@ -1,4 +1,4 @@
-.members-page {
+/* .members-page {
   display: flex;
   height: calc(100vh - var(--header-height) - var(--footer-height));
   background-color: var(--gray-light);
@@ -48,4 +48,4 @@
     min-height: 300px;
     padding: var(--spacing-unit);
   }
-}
+} */
