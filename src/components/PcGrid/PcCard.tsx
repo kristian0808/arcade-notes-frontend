@@ -30,7 +30,7 @@ const PcCard: React.FC<PcCardProps> = ({ pc, isSelected, onClick }) => {
 
   return (
     <div
-      className={`rounded-lg border ${statusClasses.border} ${statusClasses.bg} shadow-sm overflow-hidden cursor-pointer focus:outline-none transition-transform duration-150 hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'outline outline-2 outline-blue-500' : ''}`}
+      className={`rounded-lg border ${statusClasses.border} ${statusClasses.bg} shadow-sm overflow-hidden cursor-pointer focus:outline-none`}
       onClick={(e) => {
         e.preventDefault();
         onClick(pc);

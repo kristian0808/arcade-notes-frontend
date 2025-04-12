@@ -6,7 +6,8 @@ import { ProductsApi } from '../../api/ProductApi';
 import { TabsApi } from '../../api/TabsApi';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
-import { Search, PlusCircle, MinusCircle, Trash2, XCircle, ShoppingCart, DollarSign } from 'lucide-react'; // Icons
+import CustomProductModal from './CustomProductModal';
+import { Search, PlusCircle, MinusCircle, Trash2, XCircle, ShoppingCart, PlusSquare } from 'lucide-react'; // Icons
 
 interface TabViewProps {
   tab: Tab;
@@ -20,7 +21,7 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
   const [isItemLoading, setIsItemLoading] = useState<boolean>(false); // For add/update/remove
   const [itemError, setItemError] = useState<string | null>(null);
 
@@ -86,7 +87,7 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
     setSearchQuery(''); // Clear search immediately
     setSearchResults([]);
 
-    const success = await performTabAction(
+    await performTabAction(
       async () => TabsApi.addItemToTab(tab.id, {
           productId: String(product.product_id),
           productName: product.product_name,
@@ -95,7 +96,6 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
       }),
       setIsItemLoading
     );
-    // Optionally handle success/failure feedback if needed
   };
 
   const handleUpdateQuantity = async (itemIndex: number, newQuantity: number) => {
@@ -200,14 +200,25 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
 
         {/* Product Search Area */}
         <div className="p-3 relative flex-shrink-0">
-            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+            <div className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+              <Search size={16} />
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCustomModal(true)}
+              disabled={isItemLoading || isClosing}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 disabled:opacity-50 disabled:hover:text-gray-400"
+              title="Add Custom Product"
+            >
+              <PlusSquare size={20} />
+            </button>
             <input
               type="text"
               placeholder="Search products to add..."
               value={searchQuery}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               disabled={isItemLoading || isClosing}
-              className="w-full pl-10 pr-8 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             {isSearching && (
                 <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
@@ -234,6 +245,27 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
                  <p className="text-xs text-red-600 mt-1 pl-1">{searchError}</p>
             )}
         </div>
+
+        {/* Custom Product Modal */}
+        <CustomProductModal
+            isOpen={showCustomModal}
+            onClose={() => setShowCustomModal(false)}
+            onSubmit={async (name, price) => {
+                const customProduct = {
+                    productId: `custom-${Date.now()}`,
+                    productName: name,
+                    price: price,
+                    quantity: 1
+                };
+                await handleAddItem({
+                    product_id: customProduct.productId,
+                    product_name: customProduct.productName,
+                    product_price: customProduct.price
+                });
+                setShowCustomModal(false);
+            }}
+            isLoading={isItemLoading}
+        />
 
         {/* Tab Items List */}
         <div className="tab-items flex-grow overflow-y-auto px-3 pb-3">
