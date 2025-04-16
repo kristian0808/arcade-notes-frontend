@@ -1,73 +1,63 @@
-import React, { useState, useEffect } from 'react';
+// src/components/PcGrid/PcGrid.tsx
+import React from 'react';
 import { Pc } from '../../types/Pc';
-import PcCard from './PcCard';
-import { IcafeApi } from '../../api/icafeApi';
-// import { NotesApi } from '../../api/notesApi';
-import './PcGrid.css';
+import PcCard from './PcCard'; // Import the newly styled PcCard
+import LoadingSpinner from '../common/LoadingSpinner';
+import ErrorMessage from '../common/ErrorMessage';
+import { ServerCrash } from 'lucide-react'; // Icon for empty state
 
 interface PcGridProps {
+  pcs: Pc[];
+  loading: boolean;
+  error: string | null;
+  selectedPc: Pc | undefined;
   onPcSelect: (pc: Pc) => void;
+  onRetry?: () => void; // Optional retry function prop
 }
 
-const PcGrid: React.FC<PcGridProps> = ({ onPcSelect }) => {
-  const [pcs, setPcs] = useState<Pc[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedPc, setSelectedPc] = useState<Pc | null>(null);
-
-  // Fetch all PCs on component mount
-  useEffect(() => {
-    const fetchPcs = async () => {
-      setLoading(true);
-      try {
-        const response = await IcafeApi.getAllPcs();
-        if (response.success && response.data) {
-          setPcs(response.data);
-        } else {
-          setError(response.error || 'Failed to fetch PCs');
-        }
-      } catch (err) {
-        setError('An unexpected error occurred');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPcs();
-    
-    // Set up polling for real-time updates
-    const intervalId = setInterval(fetchPcs, 30000); // Poll every 30 seconds
-    
-    return () => clearInterval(intervalId); // Cleanup on unmount
-  }, []);
-
-  const handlePcClick = (pc: Pc) => {
-    setSelectedPc(pc);
-    onPcSelect(pc);
-  };
-
-  if (loading && pcs.length === 0) {
-    return <div className="pc-grid-loading">Loading PCs...</div>;
-  }
-
-  if (error && pcs.length === 0) {
-    return <div className="pc-grid-error">Error: {error}</div>;
-  }
-
-  return (
-    <div className="pc-grid-container">
-      <h2>PC Status</h2>
-      <div className="pc-grid">
+const PcGrid: React.FC<PcGridProps> = ({
+  pcs,
+  loading,
+  error,
+  selectedPc,
+  onPcSelect,
+  onRetry
+}) => {
+  // Render Content based on state
+  const renderContent = () => {
+    if (loading) {
+      return <div className="flex justify-center items-center h-64"><LoadingSpinner message="Loading PCs..." /></div>;
+    }
+    if (error) {
+      return <div className="flex justify-center items-center h-64"><ErrorMessage message={error} onRetry={onRetry} /></div>;
+    }
+    if (pcs.length === 0) {
+      return (
+        <div className="flex flex-col justify-center items-center h-64 text-gray-500">
+          <ServerCrash size={48} className="mb-4 text-gray-400"/>
+          <p>No PCs found.</p>
+        </div>
+      );
+    }
+    // Grid for PCs
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 md:gap-4 [&>*:focus]:outline-none">
         {pcs.map((pc) => (
-          <PcCard 
-          key={`${pc.pc_id}-${pc.pc_name}`}
-          pc={pc} 
+          <PcCard
+            key={pc.pc_id} // Use a stable key
+            pc={pc}
             isSelected={selectedPc?.pc_id === pc.pc_id}
-            onClick={() => handlePcClick(pc)} 
+            onClick={onPcSelect} // Pass the selection handler
           />
         ))}
       </div>
+    );
+  };
+
+  return (
+    // Container with padding - adjust padding/margins as needed in the parent component (Dashboard)
+    <div className="pc-grid-content">
+      {renderContent()}
     </div>
   );
 };

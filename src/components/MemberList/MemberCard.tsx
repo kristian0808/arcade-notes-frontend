@@ -1,11 +1,12 @@
+// src/components/MemberList/MemberCard.tsx
 import React from 'react';
 import { Member } from '../../types/Member';
-import './MemberCard.css';
+import { CheckCircle, XCircle } from 'lucide-react'; // Icons for status
 
 interface MemberCardProps {
   member: Member;
   isSelected: boolean;
-  onClick: () => void;
+  onClick: (member: Member) => void; // Use existing handler type
 }
 
 const MemberCard: React.FC<MemberCardProps> = ({ member, isSelected, onClick }) => {
@@ -19,32 +20,44 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, isSelected, onClick }) 
 
   // Get first letter for avatar
   const getAvatarText = () => {
-    return getDisplayName().charAt(0).toUpperCase();
+    const name = getDisplayName();
+    return name ? name.charAt(0).toUpperCase() : '?';
   };
 
+  const isActive = member.member_is_active === 1;
+
   return (
-    <div 
-      className={`member-card ${isSelected ? 'selected' : ''} ${member.member_is_active !== 1 ? 'inactive' : ''}`}
-      onClick={onClick}
+    <div
+      className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors duration-150 ${isSelected ? 'bg-indigo-100 ring-1 ring-indigo-200' : 'hover:bg-gray-100'} ${!isActive ? 'opacity-70' : ''}`}
+      onClick={() => onClick(member)}
+      role="button"
+      aria-pressed={isSelected}
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick(member)}
     >
-      <div className="member-avatar">
+      {/* Avatar */}
+      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 text-sm font-medium ${isActive ? 'bg-indigo-600 text-white' : 'bg-gray-400 text-white'}`}>
         {getAvatarText()}
       </div>
-      
-      <div className="member-info">
-        <div className="member-name">{getDisplayName()}</div>
-        <div className="member-account">@{member.member_account}</div>
-        
+
+      {/* Member Info */}
+      <div className="min-w-0 flex-1">
+        <p className={`text-sm font-medium truncate ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>{getDisplayName()}</p>
+        <p className="text-xs text-gray-500 truncate">@{member.member_account}</p>
         {member.member_balance && (
-          <div className="member-balance">
+          <div className="text-xs text-green-700 font-semibold mt-0.5">
             {member.member_balance}
           </div>
         )}
       </div>
-      
-      <div className="member-status-text">
-        {member.member_is_active === 1 ? 'Active' : 'Inactive'}
-      </div>
+
+      {/* Status Indicator (Optional) */}
+      {/* <div className={`ml-2 flex-shrink-0 ${isActive ? 'text-green-500' : 'text-red-500'}`} title={isActive ? 'Active' : 'Inactive'}>
+        {isActive ? <CheckCircle size={16} /> : <XCircle size={16} />}
+      </div> */}
+       <div className={`ml-2 flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+           {isActive ? 'Active' : 'Inactive'}
+       </div>
     </div>
   );
 };

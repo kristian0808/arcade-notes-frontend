@@ -1,3 +1,4 @@
+/*
 :root {
   --header-height: 64px;
   --footer-height: 49px;
@@ -143,7 +144,7 @@
   transition: all 0.3s ease;
 }
 
-/* Responsive styles */
+/* Responsive styles 
 @media screen and (max-width: 768px) {
   .menu-toggle {
     display: flex;
@@ -192,7 +193,7 @@
   }
 }
 
-/* Smooth transitions */
+/* Smooth transitions 
 * {
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
+}  */

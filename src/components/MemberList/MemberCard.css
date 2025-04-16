@@ -1,4 +1,4 @@
-.member-card {
+/*.member-card {
   background-color: white;
   padding: 12px 16px;
   display: flex;
@@ -17,7 +17,7 @@
   background-color: #e3f2fd;
 }
 
-/* Remove border from last card */
+/* Remove border from last card *
 .member-list > div:last-child .member-card {
   border-bottom: none;
 }

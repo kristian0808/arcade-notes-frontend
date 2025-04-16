@@ -86,10 +86,12 @@ createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
         productName: string,
         price: number,
         quantity: number
-    }): Promise<ApiResponse<TabItem>> => {
+    }): Promise<ApiResponse<Tab>> => {
         try {
             const response = await apiClient.post(`/api/tabs/${tabId}/items`, item);
-            return { data: response.data, success: true };
+            // After adding item, fetch the updated tab to get the complete state
+            const updatedTab = await apiClient.get(`/api/tabs/${tabId}`);
+            return { data: updatedTab.data, success: true };
         } catch (error) {
             const err = error as Error;
             return {
