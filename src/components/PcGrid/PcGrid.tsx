@@ -1,10 +1,11 @@
 // src/components/PcGrid/PcGrid.tsx
 import React from 'react';
 import { Pc } from '../../types/Pc';
-import PcCard from './PcCard'; // Import the newly styled PcCard
+import PcCard from './PcCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
-import { ServerCrash } from 'lucide-react'; // Icon for empty state
+import { ServerCrash } from 'lucide-react';
+import { useWebSocket } from '../../contexts/WebSocketContext';
 
 interface PcGridProps {
   pcs: Pc[];
@@ -12,7 +13,7 @@ interface PcGridProps {
   error: string | null;
   selectedPc: Pc | undefined;
   onPcSelect: (pc: Pc) => void;
-  onRetry?: () => void; // Optional retry function prop
+  onRetry?: () => void;
 }
 
 const PcGrid: React.FC<PcGridProps> = ({
@@ -23,6 +24,8 @@ const PcGrid: React.FC<PcGridProps> = ({
   onPcSelect,
   onRetry
 }) => {
+  const { isConnected } = useWebSocket();
+  
   // Render Content based on state
   const renderContent = () => {
     if (loading) {
@@ -55,8 +58,18 @@ const PcGrid: React.FC<PcGridProps> = ({
   };
 
   return (
-    // Container with padding - adjust padding/margins as needed in the parent component (Dashboard)
     <div className="pc-grid-content">
+      {/* Real-time indicator */}
+      {isConnected && (
+        <div className="mb-3 flex items-center text-xs text-green-700">
+          <span className="relative flex h-2 w-2 mr-2">
+            <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          Real-time updates active
+        </div>
+      )}
+      
       {renderContent()}
     </div>
   );
