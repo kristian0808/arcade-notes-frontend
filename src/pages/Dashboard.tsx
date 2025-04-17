@@ -6,7 +6,6 @@ import { Monitor, User, FileText, Search, RefreshCw, Menu, ShoppingCart, Plus, M
 // --- Layout & Common Components ---
 import Layout from '../components/Layout/Layout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import ErrorMessage from '../components/common/ErrorMessage';
 
 // --- Feature Components (Now styled with Tailwind) ---
 import PcGrid from '../components/PcGrid/PcGrid';
@@ -17,14 +16,12 @@ import { TabManager } from '../components/Tabs/TabManager'; // Handles tab check
 // --- Types ---
 import { Member } from '../types/Member';
 import { Pc, PcStatus } from '../types/Pc';
-import { Note } from '../types/Note';
 import { Tab, CreateTabRequest } from '../types/Tab'; // Import necessary Tab types
-import { Product } from '../types/Product';
 
 // --- API ---
 import { IcafeApi } from '../api/icafeApi';
-import { NotesApi } from '../api/notesApi';
 import { TabsApi } from '../api/TabsApi';
+import { useWebSocket } from '../contexts/WebSocketContext';
 // ProductApi is likely used within TabView/TabManager now, maybe not needed directly here unless for searching outside the tab context
 
 // --- StatCard Component --- (Keep as defined previously)
@@ -66,6 +63,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
 
 // --- Main Dashboard Component ---
 const Dashboard: React.FC = () => {
+
+  const {pcs: webSocketPcs, isConnected} = useWebSocket();
   // --- State Definitions ---
   const [pcs, setPcs] = useState<Pc[]>([]);
   const [pcsLoading, setPcsLoading] = useState<boolean>(true);
@@ -134,10 +133,28 @@ const Dashboard: React.FC = () => {
   }, []); // No dependencies needed
 
   useEffect(() => {
-    fetchInitialData();
-    const intervalId = setInterval(fetchInitialData, 30000); // Auto-refresh every 30 seconds
+    // Initial fetch only if WebSocket is not yet connected
+    if (!isConnected || !webSocketPcs) {
+      fetchInitialData();
+    }
+    const intervalId = setInterval(() => {
+      if (!isConnected) {
+        console.log("WebSocket disconnected, using polling fallback");
+        fetchInitialData();
+      }
+    }, 60000); // Longer interval (60s) since WebSocket is primary method
     return () => clearInterval(intervalId); // Cleanup interval on unmount
-  }, [fetchInitialData]);
+  }, [fetchInitialData, isConnected, webSocketPcs]);
+
+  // Update PC data when WebSocket sends updates
+  useEffect(() => {
+    if (webSocketPcs) {
+      console.log("Updating PCs from WebSocket data");
+      setPcs(webSocketPcs);
+      setPcsLoading(false);
+      setPcsError(null);
+    }
+  }, [webSocketPcs]);
 
 
   // --- Tab Fetching Logic ---
@@ -280,14 +297,21 @@ const Dashboard: React.FC = () => {
       {/* Dashboard Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-0">Dashboard</h2>
-        <button
+        {/* <button
           onClick={fetchInitialData}
           disabled={pcsLoading || membersLoading}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 disabled:opacity-70 transition-colors"
         >
           {pcsLoading || membersLoading ? <LoadingSpinner size="small" className="text-white"/> : <RefreshCw size={16} />}
           <span>Refresh Status</span>
-        </button>
+        </button> */}
+        {/* WebSocket Status Indicator */}
+        <div className="flex items-center mt-1">
+            <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-xs text-gray-500">
+              {isConnected ? 'Real-time updates connected' : 'Real-time disconnected, using polling'}
+            </span>
+          </div>
       </div>
 
       {/* Stats Row */}
