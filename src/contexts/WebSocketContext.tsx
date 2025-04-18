@@ -1,17 +1,19 @@
-// src/contexts/WebSocketContext.tsx
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Pc } from '../types/Pc';
+import { Member } from '../types/Member';
 
 interface WebSocketContextType {
   isConnected: boolean;
   pcs: Pc[] | null;
+  members: Member[] | null;
   error: string | null;
 }
 
 const WebSocketContext = createContext<WebSocketContextType>({
   isConnected: false,
   pcs: null,
+  members: null,
   error: null
 });
 
@@ -25,6 +27,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [pcs, setPcs] = useState<Pc[] | null>(null);
+  const [members, setMembers] = useState<Member[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,6 +62,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       setPcs(updatedPcs);
     });
 
+    // Listen for member updates
+    socketInstance.on('members_update', (updatedMembers: Member[]) => {
+      console.log('Received member updates via WebSocket');
+      setMembers(updatedMembers);
+    });
+
     setSocket(socketInstance);
 
     // Cleanup on unmount
@@ -71,7 +80,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ isConnected, pcs, error }}>
+    <WebSocketContext.Provider value={{ isConnected, pcs, members, error }}>
       {children}
     </WebSocketContext.Provider>
   );
