@@ -6,6 +6,7 @@ import { IcafeApi } from '../../api/icafeApi';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
 import { Search, Users } from 'lucide-react'; // Icons
+import { useWebSocket } from '../../contexts/WebSocketContext';
 
 interface MemberListProps {
   onMemberSelect: (member: Member) => void;
@@ -13,13 +14,14 @@ interface MemberListProps {
 }
 
 const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberId }) => {
+  const { members: webSocketMembers, isConnected } = useWebSocket();
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetching logic remains the same
+  // Fetching logic with WebSocket integration
   const fetchMembers = async () => {
     // Only set loading true on initial fetch or retry
     if (members.length === 0) setLoading(true);
@@ -41,11 +43,35 @@ const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberI
     }
   };
 
+  // Initialize data with WebSocket or fetching
   useEffect(() => {
-    fetchMembers();
-    const intervalId = setInterval(fetchMembers, 60000); // Poll every minute
-    return () => clearInterval(intervalId);
-  }, []); // Initial fetch only
+    if (!webSocketMembers) {
+      fetchMembers(); // Initial fetch if we don't have WebSocket data
+      const intervalId = setInterval(() => {
+        if (!isConnected) {
+          console.log("WebSocket disconnected, using polling fallback for members");
+          fetchMembers();
+        }
+      }, 60000); // Poll every minute if WebSocket disconnected
+      return () => clearInterval(intervalId);
+    } else {
+      // Use WebSocket data if available
+      setMembers(webSocketMembers);
+      filterMembers(searchQuery, webSocketMembers);
+      setLoading(false);
+    }
+  }, [webSocketMembers, isConnected]); // Depend on WebSocket data and connection state
+
+  // Update members when WebSocket sends updates
+  useEffect(() => {
+    if (webSocketMembers) {
+      console.log("MemberList: Updating from WebSocket data");
+      setMembers(webSocketMembers);
+      filterMembers(searchQuery, webSocketMembers);
+      setLoading(false);
+      setError(null);
+    }
+  }, [webSocketMembers, searchQuery]);
 
   // Filtering logic
   const filterMembers = (query: string, sourceMembers: Member[]) => {
@@ -124,6 +150,16 @@ const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberI
             aria-label="Search members"
           />
         </div>
+        {/* WebSocket indicator */}
+        {isConnected && (
+          <div className="mt-2 flex items-center text-xs text-green-700">
+            <span className="relative flex h-2 w-2 mr-2">
+              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Real-time updates active
+          </div>
+        )}
       </div>
 
       {/* Content Area (List or Messages) */}

@@ -64,7 +64,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
 // --- Main Dashboard Component ---
 const Dashboard: React.FC = () => {
 
-  const {pcs: webSocketPcs, isConnected} = useWebSocket();
+  const { pcs: webSocketPcs, members: webSocketMembers, isConnected } = useWebSocket();
   // --- State Definitions ---
   const [pcs, setPcs] = useState<Pc[]>([]);
   const [pcsLoading, setPcsLoading] = useState<boolean>(true);
@@ -134,7 +134,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     // Initial fetch only if WebSocket is not yet connected
-    if (!isConnected || !webSocketPcs) {
+    if (!isConnected || (!webSocketPcs && !webSocketMembers)) {
       fetchInitialData();
     }
     const intervalId = setInterval(() => {
@@ -144,7 +144,7 @@ const Dashboard: React.FC = () => {
       }
     }, 60000); // Longer interval (60s) since WebSocket is primary method
     return () => clearInterval(intervalId); // Cleanup interval on unmount
-  }, [fetchInitialData, isConnected, webSocketPcs]);
+  }, [fetchInitialData, isConnected, webSocketPcs, webSocketMembers]);
 
   // Update PC data when WebSocket sends updates
   useEffect(() => {
@@ -155,6 +155,16 @@ const Dashboard: React.FC = () => {
       setPcsError(null);
     }
   }, [webSocketPcs]);
+
+  // New effect to update members when WebSocket sends updates
+  useEffect(() => {
+    if (webSocketMembers) {
+      console.log("Updating members from WebSocket data");
+      setMembers(webSocketMembers);
+      setMembersLoading(false);
+      setMembersError(null);
+    }
+  }, [webSocketMembers]);
 
 
   // --- Tab Fetching Logic ---
@@ -178,9 +188,9 @@ const Dashboard: React.FC = () => {
       } else {
         // Don't show error if it just means "no active tab found"
         if (!(response.error && response.error.includes('not found'))) {
-            setTabError(response.error || 'Failed to check for active tab');
+          setTabError(response.error || 'Failed to check for active tab');
         } else {
-            setActiveTab(null); // Ensure tab is null if not found
+          setActiveTab(null); // Ensure tab is null if not found
         }
       }
     } catch (error: any) {
@@ -226,8 +236,8 @@ const Dashboard: React.FC = () => {
       const response = await TabsApi.createTab(request);
       if (response.success && response.data) {
         setActiveTab(response.data); // Set the newly created tab as active
-         // Optionally refresh PC/Member data if tab status affects flags
-         // fetchInitialData();
+        // Optionally refresh PC/Member data if tab status affects flags
+        // fetchInitialData();
       } else {
         setTabError(response.error || 'Failed to create tab');
       }
@@ -307,46 +317,46 @@ const Dashboard: React.FC = () => {
         </button> */}
         {/* WebSocket Status Indicator */}
         <div className="flex items-center mt-1">
-            <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-            <span className="text-xs text-gray-500">
-              {isConnected ? 'Real-time updates connected' : 'Real-time disconnected, using polling'}
-            </span>
-          </div>
+          <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          <span className="text-xs text-gray-500">
+            {isConnected ? 'Real-time updates connected' : 'Real-time disconnected, using polling'}
+          </span>
+        </div>
       </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
-            title="PC Usage"
-            value={pcsLoading ? '...' : `${stats.inUsePCs}/${stats.totalPCs}`}
-            subtitle={`${stats.usagePercentage}% Utilization`}
-            icon={<Monitor size={20} />}
-            color="bg-blue-500"
-            percentage={stats.usagePercentage}
+          title="PC Usage"
+          value={pcsLoading ? '...' : `${stats.inUsePCs}/${stats.totalPCs}`}
+          subtitle={`${stats.usagePercentage}% Utilization`}
+          icon={<Monitor size={20} />}
+          color="bg-blue-500"
+          percentage={stats.usagePercentage}
         />
         <StatCard
-            title="Available PCs"
-            value={pcsLoading ? '...' : stats.availablePCs}
-            subtitle="Ready for use"
-            icon={<Cpu size={20} />}
-            color="bg-green-500"
-            percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.availablePCs / stats.totalPCs) * 100) : 0)}
+          title="Available PCs"
+          value={pcsLoading ? '...' : stats.availablePCs}
+          subtitle="Ready for use"
+          icon={<Cpu size={20} />}
+          color="bg-green-500"
+          percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.availablePCs / stats.totalPCs) * 100) : 0)}
         />
         <StatCard
-            title="PCs with Notes"
-            value={pcsLoading ? '...' : stats.pcsWithNotes}
-            subtitle="Active notes reported"
-            icon={<AlignLeft size={20} />}
-            color="bg-yellow-500"
-            percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.pcsWithNotes / stats.totalPCs) * 100) : 0)}
+          title="PCs with Notes"
+          value={pcsLoading ? '...' : stats.pcsWithNotes}
+          subtitle="Active notes reported"
+          icon={<AlignLeft size={20} />}
+          color="bg-yellow-500"
+          percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.pcsWithNotes / stats.totalPCs) * 100) : 0)}
         />
         <StatCard
-            title="PCs with Tabs"
-            value={pcsLoading ? '...' : stats.pcsWithTabs}
-            subtitle="Active orders ongoing"
-            icon={<ShoppingCart size={20} />}
-            color="bg-purple-500"
-            percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.pcsWithTabs / stats.totalPCs) * 100) : 0)}
+          title="PCs with Tabs"
+          value={pcsLoading ? '...' : stats.pcsWithTabs}
+          subtitle="Active orders ongoing"
+          icon={<ShoppingCart size={20} />}
+          color="bg-purple-500"
+          percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.pcsWithTabs / stats.totalPCs) * 100) : 0)}
         />
       </div>
 
@@ -362,13 +372,13 @@ const Dashboard: React.FC = () => {
           </div>
           {/* PC Grid Content Area - Apply overflow and height */}
           <div className="flex-grow p-3 md:p-4 overflow-y-auto">
-             <PcGrid
-                pcs={pcs}
-                loading={pcsLoading}
-                error={pcsError}
-                selectedPc={selectedPc}
-                onPcSelect={handlePcSelect}
-                onRetry={fetchInitialData}
+            <PcGrid
+              pcs={pcs}
+              loading={pcsLoading}
+              error={pcsError}
+              selectedPc={selectedPc}
+              onPcSelect={handlePcSelect}
+              onRetry={fetchInitialData}
             />
           </div>
         </div>
@@ -378,44 +388,44 @@ const Dashboard: React.FC = () => {
 
           {/* Member List Panel */}
           {/* Give MemberList a fixed or max-height if needed within this scrolling column */}
-           <div className="lg:max-h-[35%] xl:max-h-[40%] flex flex-col flex-shrink-0">
-             <MemberList
-               onMemberSelect={handleMemberSelect}
-               selectedMemberId={selectedMember?.member_id}
-               // Pass members data and loading states if MemberList handles its own fetching,
-               // otherwise, ensure MemberList can receive `members`, `membersLoading`, `membersError` as props
-             />
-           </div>
+          <div className="lg:max-h-[35%] xl:max-h-[40%] flex flex-col flex-shrink-0">
+            <MemberList
+              onMemberSelect={handleMemberSelect}
+              selectedMemberId={selectedMember?.member_id}
+            // Pass members data and loading states if MemberList handles its own fetching,
+            // otherwise, ensure MemberList can receive `members`, `membersLoading`, `membersError` as props
+            />
+          </div>
 
 
           {/* Tab Manager Panel */}
-           <div className="lg:min-h-[30%] flex flex-col flex-shrink-0">
-             <TabManager
-               selectedMember={selectedMember}
-               selectedPc={selectedPc}
-               activeTab={activeTab}
-               isLoading={isCheckingTab}
-               isCreating={isCreatingTab}
-               isClosing={isClosingTab}
-               error={tabError}
-               onCreateTab={handleCreateTab}
-               onCloseTab={handleCloseTab}
-               onTabUpdated={handleTabUpdated}
-               // Pass the members list if TabManager needs it for context fallback
-               // members={members} // Uncomment and adjust TabManager if needed
-               className="flex-grow" // Make TabManager fill available space
-             />
-           </div>
+          <div className="lg:min-h-[30%] flex flex-col flex-shrink-0">
+            <TabManager
+              selectedMember={selectedMember}
+              selectedPc={selectedPc}
+              activeTab={activeTab}
+              isLoading={isCheckingTab}
+              isCreating={isCreatingTab}
+              isClosing={isClosingTab}
+              error={tabError}
+              onCreateTab={handleCreateTab}
+              onCloseTab={handleCloseTab}
+              onTabUpdated={handleTabUpdated}
+              // Pass the members list if TabManager needs it for context fallback
+              // members={members} // Uncomment and adjust TabManager if needed
+              className="flex-grow" // Make TabManager fill available space
+            />
+          </div>
 
           {/* Notes List Panel */}
-           <div className="lg:min-h-[30%] flex flex-col flex-shrink-0">
-             <NotesList
-               selectedMember={selectedMember}
-               selectedPc={selectedPc}
-              //  className="flex-grow" // Make NotesList fill available space
-               // NotesList now handles its own data fetching based on props
-             />
-           </div>
+          <div className="lg:min-h-[30%] flex flex-col flex-shrink-0">
+            <NotesList
+              selectedMember={selectedMember}
+              selectedPc={selectedPc}
+            //  className="flex-grow" // Make NotesList fill available space
+            // NotesList now handles its own data fetching based on props
+            />
+          </div>
 
         </div> {/* End Right Side Panels */}
       </div> {/* End Main Content Layout */}
