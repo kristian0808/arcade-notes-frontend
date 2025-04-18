@@ -7,7 +7,8 @@ import { TabsApi } from '../../api/TabsApi';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
 import CustomProductModal from './CustomProductModal';
-import { Search, PlusCircle, MinusCircle, Trash2, XCircle, ShoppingCart, PlusSquare } from 'lucide-react'; // Icons
+import PaymentModal from './PaymentModal';
+import { Search, PlusCircle, MinusCircle, Trash2, XCircle, ShoppingCart, PlusSquare, Wallet } from 'lucide-react'; // Added Wallet icon
 
 interface TabViewProps {
   tab: Tab;
@@ -24,6 +25,27 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
   const [isItemLoading, setIsItemLoading] = useState<boolean>(false); // For add/update/remove
   const [itemError, setItemError] = useState<string | null>(null);
+  
+  // Add state for the payment modal
+  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
+
+  // Handle payment completion
+  const handlePaymentComplete = async (paymentAmount: number, changeAmount: number) => {
+    setIsProcessingPayment(true);
+    try {
+      // Here you would typically make an API call to record the payment
+      // For now, we'll just simulate a delay and close the tab
+      setTimeout(async () => {
+        await onCloseTab(); // Close the tab after payment
+        setShowPaymentModal(false); // Close the modal
+        setIsProcessingPayment(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Payment processing error:', error);
+      setIsProcessingPayment(false);
+    }
+  };
 
   // Debounced Product Search Effect
   useEffect(() => {
@@ -170,6 +192,14 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   return (
     // Use flex-col and h-full if this component should fill its container
     <div className="tab-view relative flex flex-col h-full">
+        {/* Payment Modal */}
+        <PaymentModal
+          tab={tab}
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentComplete={handlePaymentComplete}
+          isProcessing={isProcessingPayment}
+        />
 
         {/* Header */}
         <div className="p-3 border-b border-gray-200 flex justify-between items-start flex-shrink-0">
@@ -181,14 +211,27 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
                     Opened: {new Date(tab.createdAt).toLocaleString()} {tab.pcName && `(PC: ${tab.pcName})`}
                  </p>
             </div>
-            <button
-              onClick={onCloseTab}
-              disabled={isItemLoading || isClosing}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-            >
-              <XCircle size={14}/>
-              {isClosing ? 'Closing...' : 'Close Tab'}
-            </button>
+            <div className="flex gap-2">
+              {/* Pay button
+              <button
+                onClick={() => setShowPaymentModal(true)}
+                disabled={isItemLoading || isClosing || tab.items.length === 0}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                <Wallet size={14}/>
+                Pay
+              </button> */}
+              
+              {/* Close tab button */}
+              <button
+                onClick={onCloseTab}
+                disabled={isItemLoading || isClosing}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                <XCircle size={14}/>
+                {isClosing ? 'Closing...' : 'Close Tab'}
+              </button>
+            </div>
         </div>
 
         {/* Potential Item Action Error */}
@@ -284,11 +327,23 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
 
         {/* Footer - Total Amount */}
         {tab.items.length > 0 && (
-             <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-between items-center flex-shrink-0">
-               <h4 className="text-sm font-semibold text-gray-800">Total:</h4>
-               <div className="text-lg font-bold text-gray-900 tabular-nums">
-                    {formatCurrency(tab.totalAmount)}
+             <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg flex-shrink-0">
+               <div className="flex justify-between items-center mb-3">
+                 <h4 className="text-sm font-semibold text-gray-800">Total:</h4>
+                 <div className="text-xl font-bold text-gray-900 tabular-nums">
+                      {formatCurrency(tab.totalAmount)}
+                 </div>
                </div>
+               
+               {/* Bottom Pay button for easy access */}
+               <button
+                 onClick={() => setShowPaymentModal(true)}
+                 disabled={isItemLoading || isClosing}
+                 className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+               >
+                 <Wallet size={16}/>
+                 Process Payment
+               </button>
              </div>
         )}
 
