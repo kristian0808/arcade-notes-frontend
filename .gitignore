@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Git internal directory (if accidentally renamed/added)
+.git_disabled/
