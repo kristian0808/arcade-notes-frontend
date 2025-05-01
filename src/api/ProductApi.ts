@@ -7,13 +7,14 @@ export const ProductsApi = {
   getProducts: async (query?: string): Promise<ApiResponse<Product[]>> => {
     try {
       const params = query ? { query } : {};
-      const response = await apiClient.get('/api/products', { params });
+      // Removed '/api' prefix from path
+      const response = await apiClient.get('/products', { params });
       return { data: response.data, success: true };
     } catch (error) {
       const err = error as Error;
-      return { 
+      return {
         error: err.message || 'Failed to fetch products',
-        success: false 
+        success: false
       };
     }
   },
@@ -21,13 +22,14 @@ export const ProductsApi = {
   // Get product by ID
   getProductById: async (productId: string): Promise<ApiResponse<Product>> => {
     try {
-      const response = await apiClient.get(`/api/products/${productId}`);
+      // Removed '/api' prefix from path
+      const response = await apiClient.get(`/products/${productId}`);
       return { data: response.data, success: true };
     } catch (error) {
       const err = error as Error;
-      return { 
+      return {
         error: err.message || 'Failed to fetch product details',
-        success: false 
+        success: false
       };
     }
   }

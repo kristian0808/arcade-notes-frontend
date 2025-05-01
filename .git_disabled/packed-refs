@@ -1,0 +1,11 @@
+# pack-refs with: peeled fully-peeled sorted 
+6bb88b68a3e9dcc79f5d616928dba24065fd3b94 refs/remotes/origin/add-payment-modal
+aac203855c886dbfaa7bee098d65a0dc473e553a refs/remotes/origin/feature/tailwind-redesign
+e39327d31745bef68b1f4ff13d0166e4a959a304 refs/remotes/origin/main
+296cea3d60c767cd06e12abea2dad55f5a3e98fa refs/remotes/origin/master
+52659eb7b0d9abe1c4cc88f64faa03c557890d24 refs/remotes/origin/member-ranking
+6f8bb31fad95d654fc74e6060a254a51cd905614 refs/remotes/origin/pc-dashboard-redesign
+208f55df2b99fdd068551c073971c6e1a6568a44 refs/remotes/origin/tab-layout-connection
+296cea3d60c767cd06e12abea2dad55f5a3e98fa refs/remotes/origin/test
+7bd03b89ac2f701eb00b2bfa26c075c592b90758 refs/remotes/origin/websocket-implementation
+daabc326a7c681d6333cbc07558f01252ece5c0b refs/remotes/origin/websocket-members

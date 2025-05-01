@@ -2,17 +2,14 @@ import apiClient from './apiClient';
 import { ApiResponse } from '../types/ApiResponse';
 import { Tab, CreateTabRequest, TabItem, UpdateTabItemQuantityRequest } from '../types/Tab';
 
+// Removed debugging console.log
 
-// At the top of TabsApi.ts, add:
-console.log('API Client configuration:', {
-    baseURL: apiClient.defaults.baseURL,
-    headers: apiClient.defaults.headers
-});
 export const TabsApi = {
     // Get active tab for a member
     getActiveTabForMember: async (memberId: number): Promise<ApiResponse<Tab | { active: false }>> => {
         try {
-            const response = await apiClient.get(`/api/tabs/member/${memberId}/active`);
+            // Removed '/api' prefix
+            const response = await apiClient.get(`/tabs/member/${memberId}/active`);
             return { data: response.data, success: true };
         } catch (error) {
             const err = error as Error;
@@ -23,53 +20,29 @@ export const TabsApi = {
         }
     },
 
-
     // Create a new tab
-    // In TabsApi.ts
-    // Use this as a temporary replacement for createTab in TabsApi.ts
- // Replace your current TabsApi.createTab implementation with this one
-// Replace your current TabsApi.createTab implementation with this one
-createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
-    try {
-      console.log("TabsApi.createTab called with:", request);
-      
-      // Use fetch directly since we know it works
-      const baseUrl = apiClient.defaults.baseURL || "http://localhost:3000";
-      const url = `${baseUrl}/api/tabs`;
-      console.log("Making fetch request to:", url);
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(request)
-      });
-      
-      console.log("Fetch response status:", response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log("Fetch response data:", data);
-      
-      return { data, success: true };
-    } catch (error) {
-      console.error("Error in TabsApi.createTab:", error);
-      const err = error as Error;
-      return { 
-        error: err.message || 'Failed to create tab',
-        success: false 
-      };
-    }
-  },
+    createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
+        try {
+            console.log("TabsApi.createTab called with:", request); // Keep log for now if needed
+            // Reverted to use apiClient and removed '/api' prefix
+            const response = await apiClient.post('/tabs', request);
+            console.log("Axios response data:", response.data); // Keep log for now if needed
+            return { data: response.data, success: true };
+        } catch (error) {
+            console.error("Error in TabsApi.createTab:", error); // Keep log for now if needed
+            const err = error as Error;
+            return {
+                error: err.message || 'Failed to create tab',
+                success: false
+            };
+        }
+    },
 
     // Get tab by ID
     getTabById: async (tabId: string): Promise<ApiResponse<Tab>> => {
         try {
-            const response = await apiClient.get(`/api/tabs/${tabId}`);
+            // Removed '/api' prefix
+            const response = await apiClient.get(`/tabs/${tabId}`);
             return { data: response.data, success: true };
         } catch (error) {
             const err = error as Error;
@@ -88,9 +61,11 @@ createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
         quantity: number
     }): Promise<ApiResponse<Tab>> => {
         try {
-            const response = await apiClient.post(`/api/tabs/${tabId}/items`, item);
+            // Removed '/api' prefix
+            await apiClient.post(`/tabs/${tabId}/items`, item);
             // After adding item, fetch the updated tab to get the complete state
-            const updatedTab = await apiClient.get(`/api/tabs/${tabId}`);
+            // Removed '/api' prefix
+            const updatedTab = await apiClient.get(`/tabs/${tabId}`);
             return { data: updatedTab.data, success: true };
         } catch (error) {
             const err = error as Error;
@@ -108,7 +83,8 @@ createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
         request: UpdateTabItemQuantityRequest
     ): Promise<ApiResponse<Tab>> => {
         try {
-            const response = await apiClient.put(`/api/tabs/${tabId}/items/${itemIndex}`, request);
+            // Removed '/api' prefix
+            const response = await apiClient.put(`/tabs/${tabId}/items/${itemIndex}`, request);
             return { data: response.data, success: true };
         } catch (error) {
             const err = error as Error;
@@ -122,7 +98,8 @@ createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
     // Remove item from tab
     removeItemFromTab: async (tabId: string, itemIndex: number): Promise<ApiResponse<Tab>> => {
         try {
-            const response = await apiClient.delete(`/api/tabs/${tabId}/items/${itemIndex}`);
+            // Removed '/api' prefix
+            const response = await apiClient.delete(`/tabs/${tabId}/items/${itemIndex}`);
             return { data: response.data, success: true };
         } catch (error) {
             const err = error as Error;
@@ -136,7 +113,8 @@ createTab: async (request: CreateTabRequest): Promise<ApiResponse<Tab>> => {
     // Close tab
     closeTab: async (tabId: string): Promise<ApiResponse<Tab>> => {
         try {
-            const response = await apiClient.post(`/api/tabs/${tabId}/close`);
+            // Removed '/api' prefix
+            const response = await apiClient.post(`/tabs/${tabId}/close`);
             return { data: response.data, success: true };
         } catch (error) {
             const err = error as Error;

@@ -26,13 +26,14 @@ export const NotesApi = {
       if (pcName) params.pcName = pcName;
       if (status) params.status = status;
 
-      const response = await apiClient.get('/api/notes', { params });
+      // Removed '/api' prefix from path
+      const response = await apiClient.get('/notes', { params });
       return { data: response.data, success: true };
     } catch (error) {
       const err = error as Error;
-      return { 
+      return {
         error: err.message || 'Failed to fetch notes',
-        success: false 
+        success: false
       };
     }
   },
@@ -40,13 +41,14 @@ export const NotesApi = {
   // Create a new note
   createNote: async (noteData: CreateNoteRequest): Promise<ApiResponse<{ id: string }>> => {
     try {
-      const response = await apiClient.post('/api/notes', noteData);
+      // Removed '/api' prefix from path
+      const response = await apiClient.post('/notes', noteData);
       return { data: response.data, success: true };
     } catch (error) {
       const err = error as Error;
-      return { 
+      return {
         error: err.message || 'Failed to create note',
-        success: false 
+        success: false
       };
     }
   },
@@ -55,13 +57,14 @@ export const NotesApi = {
   resolveNote: async (noteId: string): Promise<ApiResponse<{ success: boolean }>> => {
     try {
       // This endpoint needs to be implemented on backend
-      const response = await apiClient.put(`/api/notes/${noteId}/resolve`);
+      // Removed '/api' prefix from path
+      const response = await apiClient.put(`/notes/${noteId}/resolve`);
       return { data: response.data, success: true };
     } catch (error) {
       const err = error as Error;
-      return { 
+      return {
         error: err.message || 'Failed to resolve note',
-        success: false 
+        success: false
       };
     }
   }

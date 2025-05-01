@@ -2,7 +2,8 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosR
 
 // Create a base axios instance with common configuration
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  // Updated baseURL to include /api/v1
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,7 +35,7 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // Server responded with an error status
       console.error('API Error:', error.response.data);
-      
+
       // Handle 401 unauthorized errors
       if (error.response.status === 401) {
         // Redirect to login or clear auth state
@@ -48,7 +49,7 @@ apiClient.interceptors.response.use(
       // Something else happened
       console.error('Error:', error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );
