@@ -22,12 +22,13 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Call the actual login API
-      const userData = await login(username, password);
-      contextLogin(userData.access_token); // Store token via context
+      // Call the context login function directly, which handles the API call
+      await contextLogin(username, password);
+      // No need to handle userData or token here
       navigate('/'); // Redirect to dashboard or home page on success
     } catch (err: any) { // Catch specific error type if possible
-      console.error('Login failed:', err);
+      // Error handling might be slightly different now, context might store the error
+      console.error('Login failed in component:', err);
        // Check if the error response has a message, otherwise show generic error
       const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
       setError(errorMessage);

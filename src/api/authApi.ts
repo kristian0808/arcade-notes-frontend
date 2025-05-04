@@ -1,8 +1,7 @@
 import apiClient from './apiClient';
 
 interface LoginResponse {
-  access_token: string;
-  // Add other user details if the backend returns them
+  message: string;
 }
 
 export const login = async (username: string, password: string): Promise<LoginResponse> => {
@@ -13,20 +12,35 @@ export const login = async (username: string, password: string): Promise<LoginRe
     });
     return response.data;
   } catch (error) {
-    // Log the error or handle it as needed
     console.error('Login API call failed:', error);
-    // Re-throw the error to be caught by the calling component
     throw error;
   }
 };
 
-// Optional: Add a function to get user profile if needed
-// export const getProfile = async () => {
-//   try {
-//     const response = await apiClient.get('/profile'); // Adjust endpoint if necessary
-//     return response.data;
-//   } catch (error) {
-//     console.error('Get profile API call failed:', error);
-//     throw error;
-//   }
-// };
+export const logout = async (): Promise<void> => {
+  try {
+    await apiClient.post('/auth/logout');
+  } catch (error) {
+    console.error('Logout API call failed:', error);
+    throw error;
+  }
+};
+
+export const refreshToken = async (): Promise<void> => {
+  try {
+    await apiClient.post('/auth/refresh');
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    throw error;
+  }
+};
+
+export const getProfile = async (): Promise<any> => {
+  try {
+    const response = await apiClient.get('/auth/profile');
+    return response.data;
+  } catch (error) {
+    console.error('Get profile failed:', error);
+    throw error;
+  }
+};

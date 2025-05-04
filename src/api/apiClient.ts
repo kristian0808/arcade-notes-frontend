@@ -1,23 +1,16 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-// Create a base axios instance with common configuration
 const apiClient: AxiosInstance = axios.create({
-  // Updated baseURL to include /api/v1
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 10000,
+  withCredentials: true,
 });
 
-// Add request interceptor for authentication if needed
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Get token from localStorage or other state management
-    const token = localStorage.getItem('auth_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => {
@@ -25,29 +18,33 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Add response interceptor for error handling
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error) => {
-    // Handle different error statuses
-    if (error.response) {
-      // Server responded with an error status
-      console.error('API Error:', error.response.data);
+  async (error) => {
+    const originalRequest = error.config;
 
-      // Handle 401 unauthorized errors
-      if (error.response.status === 401) {
-        // Redirect to login or clear auth state
-        localStorage.removeItem('auth_token');
+    // Skip interceptor for auth endpoints and if on login page
+    if (originalRequest.url?.includes('/auth/login') || 
+        originalRequest.url?.includes('/auth/register') ||
+        window.location.pathname === '/login') {
+      return Promise.reject(error);
+    }
+
+    // If the error status is 401 and we haven't already tried to refresh the token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        await apiClient.post('/auth/refresh');
+        // Retry the original request
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        // Refresh token is invalid, redirect to login
         window.location.href = '/login';
+        return Promise.reject(refreshError);
       }
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error('Network Error:', error.request);
-    } else {
-      // Something else happened
-      console.error('Error:', error.message);
     }
 
     return Promise.reject(error);
