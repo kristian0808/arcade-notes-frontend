@@ -1,7 +1,8 @@
 // src/components/Layout/Layout.tsx
 import React, { useState, ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Monitor, User, FileText, Settings, Bell, Search, Menu, ShoppingCart, Package } from 'lucide-react'; // Add icons you need
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Monitor, User, FileText, Settings, Bell, Search, Menu, ShoppingCart, Package, LogOut } from 'lucide-react'; // Add LogOut icon
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,28 +11,50 @@ interface LayoutProps {
 interface SidebarItemProps {
   icon: ReactNode;
   text: string;
-  to: string;
+  to?: string; // Make 'to' optional for onClick items
   active: boolean;
   collapsed: boolean;
+  onClick?: () => void; // Add optional onClick handler
 }
 
-// SidebarItem Helper Component
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, to, active, collapsed }) => {
-  return (
-    <Link
-      to={to}
-      className={`flex items-center w-full px-4 py-3 transition-colors duration-200 ${
-        active
-          ? 'bg-indigo-800 text-white' // Active state style
-          : 'text-indigo-100 hover:bg-indigo-700 hover:text-white' // Inactive state style
-      }`}
-      title={collapsed ? text : ''} // Show tooltip when collapsed
-    >
+// SidebarItem Helper Component - Updated to handle onClick
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, to, active, collapsed, onClick }) => {
+  const content = (
+    <>
       <div className={`flex-shrink-0 ${!collapsed ? 'mr-3' : 'mx-auto'}`}>
         {icon}
       </div>
       {!collapsed && <span className="whitespace-nowrap">{text}</span>}
-    </Link>
+    </>
+  );
+
+  const className = `flex items-center w-full px-4 py-3 transition-colors duration-200 ${
+    active
+      ? 'bg-indigo-800 text-white'
+      : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'
+  }`;
+
+  if (to) {
+    return (
+      <Link
+        to={to}
+        className={className}
+        title={collapsed ? text : ''}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={className}
+      title={collapsed ? text : ''}
+      type="button"
+    >
+      {content}
+    </button>
   );
 };
 
@@ -39,12 +62,23 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, to, active, colla
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth(); // Get logout function from auth context
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800 font-sans">
@@ -87,48 +121,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             active={isActive('/notes')}
             collapsed={sidebarCollapsed}
           />
-          {/* Add other potential navigation items here */}
-          {/*
-          <SidebarItem
-            icon={<ShoppingCart size={20}/>}
-            text="Orders"
-            to="/orders"
-            active={isActive('/orders')}
-            collapsed={sidebarCollapsed}
-           />
-           <SidebarItem
-            icon={<Package size={20}/>}
-            text="Products"
-            to="/products"
-            active={isActive('/products')}
-            collapsed={sidebarCollapsed}
-           />
-           <SidebarItem
-            icon={<Settings size={20}/>}
-            text="Settings"
-            to="/settings"
-            active={isActive('/settings')}
-            collapsed={sidebarCollapsed}
-           />
-           */}
         </nav>
-        {/* Optional: Add something to the bottom of the sidebar */}
-        {/* <div className="p-4 mt-auto border-t border-indigo-800"> ... </div> */}
+
+        {/* Logout Button at the bottom */}
+        <div className="p-4 mt-auto border-t border-indigo-800">
+          <SidebarItem
+            icon={<LogOut size={20}/>}
+            text="Logout"
+            active={false}
+            collapsed={sidebarCollapsed}
+            onClick={handleLogout}
+          />
+        </div>
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation Bar (Optional) */}
         <header className="bg-white shadow-sm z-10 h-16 flex-shrink-0">
-          <div className="flex items-center justify-end p-4 h-full"> {/* Adjust content (e.g., search, user menu) */}
-            {/* Placeholder for Top Nav Content (e.g., global search, user dropdown) */}
-             {/* Example User Icon */}
-             {/* <div className="flex items-center gap-2">
-                 <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                   <User size={16} className="text-gray-600"/>
-                 </div>
-                 <span className="text-sm font-medium">Admin</span>
-            </div> */}
+          <div className="flex items-center justify-end p-4 h-full">
+            {/* Placeholder for Top Nav Content */}
           </div>
         </header>
 

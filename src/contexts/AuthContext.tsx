@@ -1,11 +1,12 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import apiClient from '../api/apiClient'; // Import apiClient to set auth header
+import * as authApi from '../api/authApi';
 
 interface AuthContextType {
-  token: string | null;
-  login: (newToken: string) => void;
-  logout: () => void;
-  isLoading: boolean; // To handle initial token loading
+  isAuthenticated: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,38 +16,60 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start loading
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load token from localStorage on initial mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
-    if (storedToken) {
-      setToken(storedToken);
-      // Set the token in the apiClient header for subsequent requests
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-    }
-    setIsLoading(false); // Finished loading token
-  }, []);
+    // Only check auth status once on mount
+    let mounted = true;
+    
+    const checkAuth = async () => {
+      try {
+        await authApi.getProfile();
+        if (mounted) {
+          setIsAuthenticated(true);
+        }
+      } catch {
+        if (mounted) {
+          setIsAuthenticated(false);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    checkAuth();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []); // Empty dependency array - run only once on mount
 
-  const login = (newToken: string) => {
-    setToken(newToken);
-    localStorage.setItem('authToken', newToken);
-    // Set the token in the apiClient header
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    // TODO: Potentially fetch user profile here after login
+  const login = async (username: string, password: string) => {
+    setError(null);
+    try {
+      await authApi.login(username, password);
+      setIsAuthenticated(true);
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+      throw err;
+    }
   };
 
-  const logout = () => {
-    setToken(null);
-    localStorage.removeItem('authToken');
-    // Remove the token from the apiClient header
-    delete apiClient.defaults.headers.common['Authorization'];
-    // TODO: Redirect to login page or clear user state
+  const logout = async () => {
+    try {
+      await authApi.logout();
+      setIsAuthenticated(false);
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, isLoading, error }}>
       {children}
     </AuthContext.Provider>
   );
