@@ -6,6 +6,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
+  isRefreshing: boolean; // New prop to track token refresh state
   error: string | null;
 }
 
@@ -18,7 +19,29 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false); // Track token refresh state
   const [error, setError] = useState<string | null>(null);
+
+  // Listen for token refresh events from the apiClient
+  useEffect(() => {
+    const tokenRefreshHandler = (event: CustomEvent) => {
+      setIsRefreshing(event.detail);
+    };
+
+    const logoutHandler = () => {
+      setIsAuthenticated(false);
+    };
+
+    // Add event listeners
+    window.addEventListener('token:refreshing', tokenRefreshHandler as EventListener);
+    window.addEventListener('auth:logout', logoutHandler);
+
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener('token:refreshing', tokenRefreshHandler as EventListener);
+      window.removeEventListener('auth:logout', logoutHandler);
+    };
+  }, []);
 
   useEffect(() => {
     // Only check auth status once on mount
@@ -65,11 +88,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
     } catch (err) {
       console.error('Logout failed:', err);
+      // Force logout even if API call fails
+      setIsAuthenticated(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, isLoading, error }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      login, 
+      logout, 
+      isLoading, 
+      isRefreshing, // Expose the refreshing state
+      error 
+    }}>
       {children}
     </AuthContext.Provider>
   );
