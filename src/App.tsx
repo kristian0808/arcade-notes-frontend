@@ -8,8 +8,9 @@ import { useAuth } from './contexts/AuthContext';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
 const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isRefreshing } = useAuth();
 
+  // Show loading spinner during initial auth check
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -18,17 +19,37 @@ const ProtectedRoute: React.FC = () => {
     );
   }
 
+  // Show loading spinner during token refresh
+  if (isRefreshing) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <LoadingSpinner />
+        <span style={{ marginLeft: '10px' }}>Refreshing session...</span>
+      </div>
+    );
+  }
+
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 const App: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isRefreshing } = useAuth();
 
   // Show loading spinner for the entire app during initial auth check
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Show loading spinner during token refresh
+  if (isRefreshing) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <LoadingSpinner />
+        <span style={{ marginLeft: '10px' }}>Refreshing session...</span>
       </div>
     );
   }

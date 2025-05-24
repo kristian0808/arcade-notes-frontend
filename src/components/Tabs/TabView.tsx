@@ -347,12 +347,12 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
              </div>
         )}
 
-        {/* Loading Overlay for item actions */}
-        {isItemLoading && (
+        {/* Loading Overlay for item actions - Commented out to remove spinner */}
+        {/* {isItemLoading && (
             <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
                 <LoadingSpinner message="Updating tab..." />
             </div>
-        )}
+        )} */}
     </div>
   );
 };

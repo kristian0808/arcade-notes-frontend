@@ -62,14 +62,14 @@ export const TabManager: React.FC<TabManagerProps> = ({
         );
     }
 
-    // 2. Loading Tab Info
-    if (isLoading) {
-        return (
-             <div className={`p-6 flex items-center justify-center bg-white rounded-lg shadow-sm h-full ${className}`}>
-                 <LoadingSpinner size="medium" message="Checking tab status..." />
-             </div>
-        );
-    }
+    // 2. Loading Tab Info - Commented out to remove spinner
+    // if (isLoading) {
+    //     return (
+    //          <div className={`p-6 flex items-center justify-center bg-white rounded-lg shadow-sm h-full ${className}`}>
+    //              <LoadingSpinner size="medium" message="Checking tab status..." />
+    //          </div>
+    //     );
+    // }
 
     // 3. Error Loading/Managing Tab
     if (error) {
