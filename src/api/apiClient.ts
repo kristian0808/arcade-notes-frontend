@@ -35,41 +35,16 @@ apiClient.interceptors.response.use(
 
     // If the error status is 401 and we haven't already tried to refresh the token
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Clear token refresh loading state if it exists
-        const refreshingTokenEvent = new CustomEvent('token:refreshing', { detail: false });
-        window.dispatchEvent(refreshingTokenEvent);
-        
-        // Notify app that token is refreshing
-        const startRefreshEvent = new CustomEvent('token:refreshing', { detail: true });
-        window.dispatchEvent(startRefreshEvent);
-        
-        // Attempt to refresh the token
-        await apiClient.post('/auth/refresh');
-        
-        // Token refreshed successfully
-        const endRefreshEvent = new CustomEvent('token:refreshing', { detail: false });
-        window.dispatchEvent(endRefreshEvent);
-        
-        // Retry the original request
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        // Refresh token failed, clear refreshing state
-        const endRefreshEvent = new CustomEvent('token:refreshing', { detail: false });
-        window.dispatchEvent(endRefreshEvent);
-        
-        // Clear any auth state in local context
-        const logoutEvent = new CustomEvent('auth:logout');
-        window.dispatchEvent(logoutEvent);
-        
-        // Redirect to login
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
-        return Promise.reject(refreshError);
+      console.log('401 Error detected, logging details instead of auto-refresh:', error);
+      
+      // Just log out immediately for debugging
+      const logoutEvent = new CustomEvent('auth:logout');
+      window.dispatchEvent(logoutEvent);
+      
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
       }
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);
