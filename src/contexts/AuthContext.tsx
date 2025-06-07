@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const logoutHandler = () => {
+      console.log('AuthContext - Logout event triggered');
       setIsAuthenticated(false);
     };
 

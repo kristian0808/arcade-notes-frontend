@@ -17,6 +17,7 @@ const Header: React.FC = () => {
   };
 
   const handleNav = (path: string) => {
+    console.log('Header - Navigating to:', path);
     navigate(path);
     setMenuOpen(false); // Close menu on navigation
   };
