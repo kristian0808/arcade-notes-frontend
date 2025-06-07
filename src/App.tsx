@@ -9,6 +9,8 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 
 const ProtectedRoute: React.FC = () => {
   const { isAuthenticated, isLoading, isRefreshing } = useAuth();
+  
+  console.log('ProtectedRoute - Auth state:', { isAuthenticated, isLoading, isRefreshing });
 
   // Show loading spinner during initial auth check
   if (isLoading) {
