@@ -33,11 +33,17 @@ interface StatCardProps {
   icon: React.ReactNode;
   color: string; // Tailwind bg color class e.g., 'bg-blue-500'
   percentage?: number; // Make percentage optional
+  onClick?: () => void; // Add optional click handler
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color, percentage }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color, percentage, onClick }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+    <div 
+      className={`bg-white rounded-lg shadow-sm p-4 border border-gray-100 ${
+        onClick ? 'cursor-pointer hover:shadow-md transition-shadow duration-200' : ''
+      }`}
+      onClick={onClick}
+    >
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="text-sm font-medium text-gray-500">{title}</h3>
@@ -83,6 +89,9 @@ const Dashboard: React.FC = () => {
   const [isCreatingTab, setIsCreatingTab] = useState<boolean>(false); // Loading state for POST /tabs
   const [isClosingTab, setIsClosingTab] = useState<boolean>(false);   // Loading state for POST /tabs/:id/close
   const [tabError, setTabError] = useState<string | null>(null);     // Errors related to tab operations
+  
+  // State for member list view mode
+  const [showActiveTabsOnly, setShowActiveTabsOnly] = useState<boolean>(false);
 
   // --- Data Fetching ---
   const fetchInitialData = useCallback(async () => {
@@ -277,6 +286,11 @@ const Dashboard: React.FC = () => {
     setActiveTab(updatedTab); // Update the active tab state
   };
 
+  // Handler for clicking on "PCs with Tabs" stat card
+  const handleTabsStatClick = () => {
+    setShowActiveTabsOnly(true);
+  };
+
 
   // --- Derived Data & Calculations ---
   const calculateStats = useCallback(() => {
@@ -357,6 +371,7 @@ const Dashboard: React.FC = () => {
           icon={<ShoppingCart size={20} />}
           color="bg-purple-500"
           percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.pcsWithTabs / stats.totalPCs) * 100) : 0)}
+          onClick={handleTabsStatClick}
         />
       </div>
 
@@ -392,8 +407,8 @@ const Dashboard: React.FC = () => {
             <MemberList
               onMemberSelect={handleMemberSelect}
               selectedMemberId={selectedMember?.member_id}
-            // Pass members data and loading states if MemberList handles its own fetching,
-            // otherwise, ensure MemberList can receive `members`, `membersLoading`, `membersError` as props
+              showActiveTabsOnly={showActiveTabsOnly}
+              onViewModeChange={setShowActiveTabsOnly}
             />
           </div>
 
