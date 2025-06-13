@@ -123,5 +123,19 @@ export const TabsApi = {
                 success: false
             };
         }
+    },
+
+    // Get members with active tabs
+    getActiveMembersWithTabs: async (): Promise<ApiResponse<any[]>> => {
+        try {
+            const response = await apiClient.get('/tabs/active-members');
+            return { data: response.data, success: true };
+        } catch (error) {
+            const err = error as Error;
+            return {
+                error: err.message || 'Failed to fetch active members with tabs',
+                success: false
+            };
+        }
     }
 };

@@ -3,6 +3,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Member } from '../../types/Member';
 import MemberCard from './MemberCard'; // Use adapted MemberCard
 import { IcafeApi } from '../../api/icafeApi';
+import { TabsApi } from '../../api/TabsApi';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
 import { Search, Users } from 'lucide-react'; // Icons
@@ -11,15 +12,27 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 interface MemberListProps {
   onMemberSelect: (member: Member) => void;
   selectedMemberId?: number; // Keep this prop to indicate selection
+  showActiveTabsOnly?: boolean; // New prop to control view mode
+  onViewModeChange?: (showActiveTabsOnly: boolean) => void; // Callback for view mode changes
 }
 
-const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberId }) => {
+const MemberList: React.FC<MemberListProps> = ({ 
+  onMemberSelect, 
+  selectedMemberId, 
+  showActiveTabsOnly = false,
+  onViewModeChange 
+}) => {
   const { members: webSocketMembers, isConnected } = useWebSocket();
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // State for active tab members
+  const [activeTabMembers, setActiveTabMembers] = useState<any[]>([]);
+  const [activeTabsLoading, setActiveTabsLoading] = useState<boolean>(false);
+  const [activeTabsError, setActiveTabsError] = useState<string | null>(null);
 
   // Fetching logic with WebSocket integration
   const fetchMembers = async () => {
@@ -40,6 +53,25 @@ const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberI
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch active tab members
+  const fetchActiveTabMembers = async () => {
+    setActiveTabsLoading(true);
+    setActiveTabsError(null);
+    try {
+      const response = await TabsApi.getActiveMembersWithTabs();
+      if (response.success && response.data) {
+        setActiveTabMembers(response.data);
+      } else {
+        setActiveTabsError(response.error || 'Failed to fetch active tab members');
+      }
+    } catch (err) {
+      setActiveTabsError('An unexpected error occurred');
+      console.error(err);
+    } finally {
+      setActiveTabsLoading(false);
     }
   };
 
@@ -93,6 +125,20 @@ const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberI
     filterMembers(searchQuery, members);
   }, [searchQuery, members]);
 
+  // Fetch active tab members when showActiveTabsOnly is true
+  useEffect(() => {
+    if (showActiveTabsOnly) {
+      fetchActiveTabMembers();
+    }
+  }, [showActiveTabsOnly]);
+
+  // Reset to show all members when starting to search
+  useEffect(() => {
+    if (searchQuery.trim() && showActiveTabsOnly && onViewModeChange) {
+      onViewModeChange(false);
+    }
+  }, [searchQuery, showActiveTabsOnly, onViewModeChange]);
+
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -104,6 +150,49 @@ const MemberList: React.FC<MemberListProps> = ({ onMemberSelect, selectedMemberI
 
   // Render Content
   const renderContent = () => {
+    // Show active tabs view when enabled and no search query
+    if (showActiveTabsOnly && !searchQuery.trim()) {
+      if (activeTabsLoading) {
+        return <div className="flex justify-center items-center flex-grow"><LoadingSpinner message="Loading active tabs..." /></div>;
+      }
+      if (activeTabsError) {
+        return <div className="p-4 flex-grow"><ErrorMessage message={activeTabsError} onRetry={fetchActiveTabMembers} /></div>;
+      }
+      if (activeTabMembers.length === 0) {
+        return (
+          <div className="text-center py-6 text-gray-500 flex-grow flex flex-col items-center justify-center">
+            <Users size={40} className="mb-3 text-gray-400"/>
+            <p className="text-sm">No members with active tabs</p>
+          </div>
+        );
+      }
+      return (
+        <div className="space-y-1 p-2 overflow-y-auto flex-grow">
+          {activeTabMembers.map((activeTabMember) => (
+            <MemberCard
+              key={activeTabMember.memberId}
+              member={{
+                member_id: activeTabMember.memberId,
+                member_account: activeTabMember.memberAccount,
+                member_first_name: '',
+                member_last_name: '',
+                member_balance: '',
+                member_is_active: 1
+              }}
+              isSelected={selectedMemberId === activeTabMember.memberId}
+              onClick={(member) => handleMemberClick(member)}
+              tabInfo={{
+                totalAmount: activeTabMember.totalAmount,
+                itemCount: activeTabMember.itemCount,
+                pcName: activeTabMember.pcName
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    // Regular member list view
     if (loading) {
         return <div className="flex justify-center items-center flex-grow"><LoadingSpinner message="Loading members..." /></div>;
     }
