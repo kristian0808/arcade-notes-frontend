@@ -178,6 +178,22 @@ const Dashboard: React.FC = () => {
     }
   }, [webSocketMembers]);
 
+  // Sync PC has_active_tab flags with real-time tab data
+  useEffect(() => {
+    if (activeTabsData && pcs.length > 0) {
+      const activeMemberIds = new Set(
+        activeTabsData.activeMembersWithTabs.map(tab => tab.memberId)
+      );
+
+      setPcs(prevPcs => 
+        prevPcs.map(pc => ({
+          ...pc,
+          has_active_tab: pc.current_member_id ? activeMemberIds.has(pc.current_member_id) : false
+        }))
+      );
+    }
+  }, [activeTabsData]);
+
 
   // --- Tab Fetching Logic ---
   const checkForActiveTab = useCallback(async (memberId: number | undefined) => {
