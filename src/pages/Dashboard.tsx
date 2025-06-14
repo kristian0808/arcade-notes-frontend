@@ -218,10 +218,25 @@ const Dashboard: React.FC = () => {
   // --- Event Handlers ---
   const handlePcSelect = useCallback((pc: Pc) => {
     setSelectedPc(pc);
-    // Find the member associated with the PC from the already fetched members list
-    const memberFromPc = pc.current_member_id
-      ? members.find(m => m.member_id === pc.current_member_id)
-      : undefined;
+    
+    let memberFromPc: Member | undefined = undefined;
+    
+    if (pc.current_member_id) {
+      // First try to find the member in the registered members list
+      memberFromPc = members.find(m => m.member_id === pc.current_member_id);
+      
+      // If not found and we have account info, create a synthetic member for guest users
+      if (!memberFromPc && pc.current_member_account) {
+        memberFromPc = {
+          member_id: pc.current_member_id,
+          member_account: pc.current_member_account,
+          member_first_name: '',
+          member_last_name: '',
+          member_balance: '',
+          member_is_active: 1
+        };
+      }
+    }
 
     setSelectedMember(memberFromPc);
     checkForActiveTab(memberFromPc?.member_id); // Check tab for the PC's user
@@ -373,7 +388,7 @@ const Dashboard: React.FC = () => {
         <StatCard
           title="PCs with Tabs"
           value={pcsLoading ? '...' : stats.pcsWithTabs}
-          subtitle="Active orders ongoing"
+          subtitle="Active tabs"
           icon={<ShoppingCart size={20} />}
           color="bg-purple-500"
           percentage={pcsLoading ? 0 : (stats.totalPCs > 0 ? Math.round((stats.pcsWithTabs / stats.totalPCs) * 100) : 0)}
