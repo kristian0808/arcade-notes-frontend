@@ -35,6 +35,7 @@ const MembersPage: React.FC = () => {
           <MemberList
             onMemberSelect={handleMemberSelect}
             selectedMemberId={selectedMember?.member_id}
+            showActiveTabsOnly={false}
           />
         </div>
 
