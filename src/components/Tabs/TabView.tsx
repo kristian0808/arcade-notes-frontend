@@ -147,11 +147,11 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
 
   // Render individual tab item
   const renderTabItem = (item: TabItem, index: number) => (
-    <div key={`${item.productId}-${index}`} className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-b-0 text-sm">
+    <div key={`${item.productId}-${index}`} className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-b-0 text-sm">
       {/* Item Info */}
       <div className="flex-grow pr-2 min-w-0">
-        <p className="font-medium text-gray-800 truncate">{item.productName}</p>
-        <p className="text-xs text-gray-500">{formatCurrency(item.price)} each</p>
+        <p className="font-medium text-gray-800 dark:text-gray-200 truncate">{item.productName}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{formatCurrency(item.price)} each</p>
       </div>
 
       {/* Quantity Controls & Total */}
@@ -159,27 +159,27 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
         <button
           onClick={() => handleUpdateQuantity(index, item.quantity - 1)}
           disabled={isItemLoading || item.quantity <= 1}
-          className="p-1 text-gray-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="p-1 text-gray-400 dark:text-gray-500 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Decrease quantity"
         >
           <MinusCircle size={18} />
         </button>
-        <span className="mx-2 text-sm font-medium w-5 text-center tabular-nums">{item.quantity}</span>
+        <span className="mx-2 text-sm font-medium w-5 text-center tabular-nums text-gray-900 dark:text-gray-100">{item.quantity}</span>
         <button
           onClick={() => handleUpdateQuantity(index, item.quantity + 1)}
           disabled={isItemLoading}
-          className="p-1 text-gray-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="p-1 text-gray-400 dark:text-gray-500 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Increase quantity"
         >
           <PlusCircle size={18} />
         </button>
-        <span className="ml-4 w-16 text-right text-sm font-semibold text-gray-700 tabular-nums">
+        <span className="ml-4 w-16 text-right text-sm font-semibold text-gray-700 dark:text-gray-300 tabular-nums">
             {formatCurrency(item.totalPrice)}
         </span>
          <button
           onClick={() => handleRemoveItem(index)}
           disabled={isItemLoading}
-          className="ml-3 p-1 text-gray-400 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="ml-3 p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Remove item"
         >
           <Trash2 size={16} />
@@ -202,12 +202,12 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
         />
 
         {/* Header */}
-        <div className="p-3 border-b border-gray-200 flex justify-between items-start flex-shrink-0">
+        <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start flex-shrink-0">
             <div>
-                 <h3 className="font-semibold text-base text-gray-800">
+                 <h3 className="font-semibold text-base text-gray-800 dark:text-gray-200">
                     Active Tab - {tab.memberAccount}
                  </h3>
-                 <p className="text-xs text-gray-500">
+                 <p className="text-xs text-gray-500 dark:text-gray-400">
                     Opened: {new Date(tab.createdAt).toLocaleString()} {tab.pcName && `(PC: ${tab.pcName})`}
                  </p>
             </div>
@@ -243,14 +243,14 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
 
         {/* Product Search Area */}
         <div className="p-3 relative flex-shrink-0">
-            <div className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+            <div className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none">
               <Search size={16} />
             </div>
             <button
               type="button"
               onClick={() => setShowCustomModal(true)}
               disabled={isItemLoading || isClosing}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 disabled:opacity-50 disabled:hover:text-gray-400"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 disabled:opacity-50 disabled:hover:text-gray-400"
               title="Add Custom Product"
             >
               <PlusSquare size={20} />
@@ -261,7 +261,7 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
               value={searchQuery}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               disabled={isItemLoading || isClosing}
-              className="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             {isSearching && (
                 <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
@@ -270,15 +270,15 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
             )}
             {/* Search Results Dropdown */}
             {!isSearching && searchResults.length > 0 && (
-                <div className="absolute top-full left-3 right-3 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
+                <div className="absolute top-full left-3 right-3 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
                     {searchResults.map(product => (
                         <div
                             key={product.product_id}
                             onClick={() => handleAddItem(product)}
-                            className="flex justify-between items-center px-4 py-2.5 text-sm hover:bg-indigo-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            className="flex justify-between items-center px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                         >
-                            <span className="text-gray-800">{product.product_name}</span>
-                            <span className="text-xs font-semibold text-indigo-600">{formatCurrency(product.product_price)}</span>
+                            <span className="text-gray-800 dark:text-gray-200">{product.product_name}</span>
+                            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{formatCurrency(product.product_price)}</span>
                         </div>
                     ))}
                 </div>
@@ -313,13 +313,13 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
         {/* Tab Items List */}
         <div className="tab-items flex-grow overflow-y-auto px-3 pb-3">
             {tab.items.length === 0 ? (
-                <div className="text-center py-10 text-gray-500">
-                    <ShoppingCart size={36} className="mx-auto mb-3 text-gray-300"/>
+                <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+                    <ShoppingCart size={36} className="mx-auto mb-3 text-gray-300 dark:text-gray-600"/>
                     <p className="text-sm">Tab is empty.</p>
                     <p className="text-xs">Use the search above to add items.</p>
                 </div>
             ) : (
-                 <div className="border-t border-gray-100">
+                 <div className="border-t border-gray-100 dark:border-gray-700">
                     {tab.items.map(renderTabItem)}
                  </div>
             )}
@@ -327,10 +327,10 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
 
         {/* Footer - Total Amount */}
         {tab.items.length > 0 && (
-             <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg flex-shrink-0">
+             <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 rounded-b-lg flex-shrink-0">
                <div className="flex justify-between items-center mb-3">
-                 <h4 className="text-sm font-semibold text-gray-800">Total:</h4>
-                 <div className="text-xl font-bold text-gray-900 tabular-nums">
+                 <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Total:</h4>
+                 <div className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                       {formatCurrency(tab.totalAmount)}
                  </div>
                </div>

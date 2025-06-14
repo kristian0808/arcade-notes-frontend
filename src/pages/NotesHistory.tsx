@@ -87,8 +87,8 @@ const NotesHistory: React.FC = () => {
     }
     if (notes.length === 0) {
         return (
-            <div className="text-center py-16 text-gray-500 flex-grow flex flex-col items-center justify-center">
-                <FileText size={48} className="mb-4 text-gray-300"/>
+            <div className="text-center py-16 text-gray-500 dark:text-gray-400 flex-grow flex flex-col items-center justify-center">
+                <FileText size={48} className="mb-4 text-gray-300 dark:text-gray-600"/>
                 <p>No notes found matching the filter.</p>
             </div>
         );
@@ -111,13 +111,13 @@ const NotesHistory: React.FC = () => {
   return (
     <Layout>
       {/* Use bg-white, rounded, shadow for the main content container */}
-      <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm h-full flex flex-col">
+      <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-sm h-full flex flex-col">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 sm:mb-0">Notes History</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3 sm:mb-0">Notes History</h2>
           {/* Filter Buttons */}
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter notes">
-             <span className="flex items-center text-sm text-gray-500 mr-2"><Filter size={14}/> Filter:</span>
+             <span className="flex items-center text-sm text-gray-500 dark:text-gray-400 mr-2"><Filter size={14}/> Filter:</span>
             {filters.map(filter => (
               <button
                 key={filter.value}
@@ -125,7 +125,7 @@ const NotesHistory: React.FC = () => {
                 className={`px-3 py-1 text-xs md:text-sm rounded-md border transition-colors duration-150 ${
                   filterStatus === filter.value
                     ? 'bg-indigo-600 text-white border-indigo-600 font-medium' // Active filter style
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 hover:border-gray-400' // Inactive filter style
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500' // Inactive filter style
                 }`}
                 aria-pressed={filterStatus === filter.value}
               >

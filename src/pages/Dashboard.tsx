@@ -1,7 +1,7 @@
 // src/pages/Dashboard.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 // --- Icons ---
-import { Monitor, User, FileText, Search, RefreshCw, Menu, ShoppingCart, Plus, MinusCircle, PlusCircle, Trash2, DollarSign, AlignLeft, Cpu, Info, ServerCrash } from 'lucide-react';
+import { Monitor, User, FileText, Search, RefreshCw, Menu, ShoppingCart, Plus, MinusCircle, PlusCircle, Trash2, DollarSign, AlignLeft, Cpu, Info, ServerCrash, Moon, Sun } from 'lucide-react';
 
 // --- Layout & Common Components ---
 import Layout from '../components/Layout/Layout';
@@ -22,6 +22,7 @@ import { Tab, CreateTabRequest } from '../types/Tab'; // Import necessary Tab ty
 import { IcafeApi } from '../api/icafeApi';
 import { TabsApi } from '../api/TabsApi';
 import { useWebSocket } from '../contexts/WebSocketContext';
+import { useTheme } from '../contexts/ThemeContext';
 // ProductApi is likely used within TabView/TabManager now, maybe not needed directly here unless for searching outside the tab context
 
 // --- StatCard Component --- (Keep as defined previously)
@@ -39,16 +40,16 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color, percentage, onClick }) => {
   return (
     <div 
-      className={`bg-white rounded-lg shadow-sm p-4 border border-gray-100 ${
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-100 dark:border-gray-700 ${
         onClick ? 'cursor-pointer hover:shadow-md transition-shadow duration-200' : ''
       }`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-          <p className="mt-1 text-2xl font-semibold text-gray-900">{value}</p>
-          <p className="mt-1 text-xs text-gray-500">{subtitle}</p>
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
+          <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">{value}</p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
         </div>
         <div className={`p-2 rounded-lg ${color} text-white flex-shrink-0`}>
           {icon}
@@ -57,10 +58,10 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
       {/* Only show progress bar if percentage is a valid number */}
       {typeof percentage === 'number' && !isNaN(percentage) && (
         <div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
             <div className={`${color} h-1.5 rounded-full`} style={{ width: `${Math.max(0, Math.min(100, percentage))}%` }}></div>
           </div>
-          <p className="text-right text-xs mt-1 text-gray-500">{percentage}%</p>
+          <p className="text-right text-xs mt-1 text-gray-500 dark:text-gray-400">{percentage}%</p>
         </div>
       )}
     </div>
@@ -71,6 +72,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
 const Dashboard: React.FC = () => {
 
   const { pcs: webSocketPcs, members: webSocketMembers, activeTabsData, isConnected } = useWebSocket();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   // --- State Definitions ---
   const [pcs, setPcs] = useState<Pc[]>([]);
   const [pcsLoading, setPcsLoading] = useState<boolean>(true);
@@ -97,12 +99,35 @@ const Dashboard: React.FC = () => {
   const [refreshActiveTabsTrigger, setRefreshActiveTabsTrigger] = useState<number>(0);
 
   // --- Data Fetching ---
+  // Mock data for testing
+  const generateMockPcs = () => {
+    return Array.from({ length: 40 }, (_, i) => ({
+      pc_id: String(i + 1),
+      pc_name: `PC${String(i + 1).padStart(2, '0')}`,
+      status: i % 4 === 0 ? PcStatus.IN_USE : 
+              i % 4 === 1 ? PcStatus.AVAILABLE : 
+              i % 4 === 2 ? PcStatus.OFFLINE : PcStatus.MAINTENANCE,
+      current_member_id: i % 4 === 0 ? i + 100 : undefined,
+      current_member_account: i % 4 === 0 ? `member${i + 1}` : undefined,
+      time_left: i % 4 === 0 ? `${Math.floor(Math.random() * 120) + 10}min` : undefined,
+      has_notes: Math.random() > 0.7,
+      has_active_tab: Math.random() > 0.8
+    }));
+  };
+
   const fetchInitialData = useCallback(async () => {
     console.log("Fetching initial PC and Member data...");
     setPcsLoading(true);
     setMembersLoading(true);
     setPcsError(null);
     setMembersError(null);
+
+    // For testing: Always use mock data (commented out for live data)
+    // console.log("Using mock data for testing");
+    // setPcs(generateMockPcs());
+    // setPcsLoading(false);
+    // setMembersLoading(false);
+    // return;
 
     try {
       const [pcsResponse, membersResponse] = await Promise.all([
@@ -116,7 +141,20 @@ const Dashboard: React.FC = () => {
         const errorMsg = pcsResponse.error || 'Failed to fetch PC status';
         console.error("Error fetching PCs:", errorMsg);
         setPcsError(errorMsg);
-        setPcs([]);
+        // Set default mock data for testing
+        const mockPcs = Array.from({ length: 40 }, (_, i) => ({
+          pc_id: String(i + 1),
+          pc_name: `PC${String(i + 1).padStart(2, '0')}`,
+          status: i % 4 === 0 ? PcStatus.IN_USE : 
+                  i % 4 === 1 ? PcStatus.AVAILABLE : 
+                  i % 4 === 2 ? PcStatus.OFFLINE : PcStatus.MAINTENANCE,
+          current_member_id: i % 4 === 0 ? i + 100 : undefined,
+          current_member_account: i % 4 === 0 ? `member${i + 1}` : undefined,
+          time_left: i % 4 === 0 ? `${Math.floor(Math.random() * 120) + 10}min` : undefined,
+          has_notes: Math.random() > 0.7,
+          has_active_tab: Math.random() > 0.8
+        }));
+        setPcs(mockPcs);
       }
 
       if (membersResponse.success && membersResponse.data) {
@@ -132,7 +170,20 @@ const Dashboard: React.FC = () => {
       console.error("Fetch initial data error:", error);
       if (!pcsError) {
         setPcsError('Network or server error loading PC data.');
-        setPcs([]);
+        // Set default mock data for testing even on network error
+        const mockPcs = Array.from({ length: 40 }, (_, i) => ({
+          pc_id: String(i + 1),
+          pc_name: `PC${String(i + 1).padStart(2, '0')}`,
+          status: i % 4 === 0 ? PcStatus.IN_USE : 
+                  i % 4 === 1 ? PcStatus.AVAILABLE : 
+                  i % 4 === 2 ? PcStatus.OFFLINE : PcStatus.MAINTENANCE,
+          current_member_id: i % 4 === 0 ? i + 100 : undefined,
+          current_member_account: i % 4 === 0 ? `member${i + 1}` : undefined,
+          time_left: i % 4 === 0 ? `${Math.floor(Math.random() * 120) + 10}min` : undefined,
+          has_notes: Math.random() > 0.7,
+          has_active_tab: Math.random() > 0.8
+        }));
+        setPcs(mockPcs);
       }
       if (!membersError) {
         setMembersError('Network or server error loading member data.');
@@ -160,11 +211,20 @@ const Dashboard: React.FC = () => {
 
   // Update PC data when WebSocket sends updates
   useEffect(() => {
-    if (webSocketPcs) {
+    // Temporarily disabled for testing - always use mock data (commented out for live data)
+    // console.log("WebSocket PC update disabled for testing");
+    // return;
+    
+    if (webSocketPcs && webSocketPcs.length > 0) {
       console.log("Updating PCs from WebSocket data");
       setPcs(webSocketPcs);
       setPcsLoading(false);
       setPcsError(null);
+    } else if (webSocketPcs && webSocketPcs.length === 0) {
+      console.log("WebSocket returned empty PCs array, using mock data for testing");
+      setPcs(generateMockPcs());
+      setPcsLoading(false);
+      setPcsError('Using mock data - WebSocket returned empty');
     }
   }, [webSocketPcs]);
 
@@ -357,21 +417,27 @@ const Dashboard: React.FC = () => {
     <Layout>
       {/* Dashboard Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-0">Dashboard</h2>
-        {/* <button
-          onClick={fetchInitialData}
-          disabled={pcsLoading || membersLoading}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 disabled:opacity-70 transition-colors"
-        >
-          {pcsLoading || membersLoading ? <LoadingSpinner size="small" className="text-white"/> : <RefreshCw size={16} />}
-          <span>Refresh Status</span>
-        </button> */}
-        {/* WebSocket Status Indicator */}
-        <div className="flex items-center mt-1">
-          <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          <span className="text-xs text-gray-500">
-            {isConnected ? 'Real-time updates connected' : 'Real-time disconnected, using polling'}
-          </span>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2 sm:mb-0">Dashboard</h2>
+        <div className="flex items-center gap-4">
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-900"
+            aria-label="Toggle dark mode"
+          >
+            {isDarkMode ? (
+              <Sun size={18} className="text-yellow-500" />
+            ) : (
+              <Moon size={18} className="text-gray-600" />
+            )}
+          </button>
+          {/* WebSocket Status Indicator */}
+          <div className="flex items-center">
+            <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {isConnected ? 'Real-time updates connected' : 'Real-time disconnected, using polling'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -417,13 +483,9 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-16rem)] xl:h-[calc(100vh-14rem)]">
 
         {/* Left Side: PC Grid */}
-        <div className="lg:w-2/3 bg-white rounded-lg shadow-sm overflow-hidden flex flex-col">
-          <div className="p-3 md:p-4 border-b flex justify-between items-center flex-shrink-0">
-            <h3 className="font-semibold text-base md:text-lg text-gray-800">PC Status</h3>
-            <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">{stats.totalPCs} Systems</span>
-          </div>
-          {/* PC Grid Content Area - Apply overflow and height */}
-          <div className="flex-grow p-3 md:p-4 overflow-y-auto">
+        <div className="lg:w-2/3 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col relative">
+          {/* PC Grid Content Area - Full height with padding */}
+          <div className="flex-grow p-6 flex justify-center items-center">
             <PcGrid
               pcs={pcs}
               loading={pcsLoading}
@@ -432,6 +494,10 @@ const Dashboard: React.FC = () => {
               onPcSelect={handlePcSelect}
               onRetry={fetchInitialData}
             />
+          </div>
+          {/* Small badge at top right */}
+          <div className="absolute top-4 right-4">
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full">{stats.totalPCs} PCs</span>
           </div>
         </div>
 

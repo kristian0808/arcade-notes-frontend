@@ -68,11 +68,11 @@ const CreateNoteForm: React.FC<CreateNoteFormProps> = ({
   const canSubmit = selectedMember && content.trim() && !isLoading;
 
   return (
-    <form onSubmit={handleSubmit} className={`create-note-form ${className}`}>
+    <form onSubmit={handleSubmit} className={`mb-4 ${className}`}>
       {error && <div className="mb-3"><ErrorMessage message={error} /></div>}
 
       {!selectedMember && (
-        <div className="mb-3 p-3 text-sm text-yellow-800 bg-yellow-100 border border-yellow-200 rounded-md">
+        <div className="mb-3 p-3 text-sm text-yellow-800 dark:text-yellow-200 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-md">
           Please select a member to add a note.
         </div>
       )}
@@ -87,7 +87,7 @@ const CreateNoteForm: React.FC<CreateNoteFormProps> = ({
           rows={3}
           required
           disabled={isLoading || !selectedMember}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-vertical"
+          className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed resize-vertical"
         />
       </div>
 

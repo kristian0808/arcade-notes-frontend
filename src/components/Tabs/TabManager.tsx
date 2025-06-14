@@ -53,8 +53,8 @@ export const TabManager: React.FC<TabManagerProps> = ({
     // 1. No Member Context
     if (!contextMember && !isLoading) { // Only show if not loading initial context
         return (
-            <div className={`tab-manager-empty p-6 text-center text-gray-500 bg-white rounded-lg shadow-sm flex flex-col items-center justify-center h-full ${className}`}>
-                 <Info size={36} className="mb-3 text-gray-300"/>
+            <div className={`tab-manager-empty p-6 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col items-center justify-center h-full ${className}`}>
+                 <Info size={36} className="mb-3 text-gray-300 dark:text-gray-600"/>
                  <p className="text-sm">Select a member</p>
                  <p className="text-xs">(or a PC currently in use)</p>
                  <p className="text-xs">to manage their tab.</p>
@@ -74,7 +74,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
     // 3. Error Loading/Managing Tab
     if (error) {
         return (
-            <div className={`p-6 bg-white rounded-lg shadow-sm h-full ${className}`}>
+            <div className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm h-full ${className}`}>
                 <ErrorMessage message={error} onRetry={contextMember ? () => checkForActiveTab(contextMember.member_id) : undefined}/>
                  {/* If error occurred during creation/closing, maybe offer retry? */}
             </div>
@@ -84,10 +84,10 @@ export const TabManager: React.FC<TabManagerProps> = ({
     // 4. Member Context Exists, No Active Tab Found
     if (contextMember && !activeTab) {
         return (
-            <div className={`tab-manager-no-active-tab p-6 text-center bg-white rounded-lg shadow-sm flex flex-col items-center justify-center h-full ${className}`}>
-                <ShoppingCart size={36} className="mb-3 text-gray-300"/>
-                <h4 className="font-semibold text-gray-800 mb-1">No Active Tab</h4>
-                <p className="text-sm text-gray-600 mb-4">For member: {contextMember.member_account}</p>
+            <div className={`tab-manager-no-active-tab p-6 text-center bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col items-center justify-center h-full ${className}`}>
+                <ShoppingCart size={36} className="mb-3 text-gray-300 dark:text-gray-600"/>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">No Active Tab</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">For member: {contextMember.member_account}</p>
                  <button
                     className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-wait transition-colors"
                     onClick={onCreateTab}
@@ -103,7 +103,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
     if (activeTab) {
          return (
             // The TabView component itself will be a flex container taking full height
-            <div className={`tab-manager-active bg-white rounded-lg shadow-sm overflow-hidden h-full ${className}`}>
+            <div className={`tab-manager-active bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden h-full ${className}`}>
                 <TabView
                     tab={activeTab}
                     onCloseTab={onCloseTab}
@@ -116,8 +116,8 @@ export const TabManager: React.FC<TabManagerProps> = ({
 
     // Fallback (should ideally not be reached if logic above is correct)
      return (
-        <div className={`p-6 bg-white rounded-lg shadow-sm h-full ${className}`}>
-             <p className="text-center text-gray-500">Invalid state.</p>
+        <div className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm h-full ${className}`}>
+             <p className="text-center text-gray-500 dark:text-gray-400">Invalid state.</p>
         </div>
     );
 };
