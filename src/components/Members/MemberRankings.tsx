@@ -76,11 +76,11 @@ const MemberRankings: React.FC = () => {
   
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={14} className="text-gray-400" />;
+      return <ArrowUpDown size={14} className="text-gray-400 dark:text-gray-500" />;
     }
     return sortDirection === 'asc' 
-      ? <ArrowUp size={14} className="text-indigo-600" />
-      : <ArrowDown size={14} className="text-indigo-600" />;
+      ? <ArrowUp size={14} className="text-indigo-600 dark:text-indigo-400" />
+      : <ArrowDown size={14} className="text-indigo-600 dark:text-indigo-400" />;
   };
   
   if (isLoading) {
@@ -102,8 +102,8 @@ const MemberRankings: React.FC = () => {
   if (rankings.length === 0) {
     return (
       <div className="text-center py-16">
-        <Trophy size={48} className="mx-auto mb-4 text-gray-300" />
-        <p className="text-gray-500">No member activity data found for the selected time period.</p>
+        <Trophy size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+        <p className="text-gray-500 dark:text-gray-400">No member activity data found for the selected time period.</p>
       </div>
     );
   }
@@ -129,8 +129,8 @@ const MemberRankings: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Time Period Selectors */}
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <p className="text-sm text-gray-600 mb-3">Time Period</p>
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Time Period</p>
         <div className="flex gap-2">
           {(['day', 'week', 'month', 'all'] as TimeframeType[]).map((period) => (
             <button
@@ -139,7 +139,7 @@ const MemberRankings: React.FC = () => {
               className={`px-4 py-2 text-sm font-medium rounded-md
                         ${timeframe === period
                   ? 'bg-indigo-600 text-white'
-                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                 }`}
             >
               {period === 'day' ? 'Today' :
@@ -155,7 +155,7 @@ const MemberRankings: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {topThree.map((member, idx) => (
             <div key={member.memberAccount} 
-                 className={`bg-white rounded-lg shadow-sm overflow-hidden border-t-4 
+                 className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-t-4 
                             ${idx === 0 ? 'border-yellow-400' : 
                               idx === 1 ? 'border-gray-400' : 
                               'border-orange-400'}`}>
@@ -169,23 +169,23 @@ const MemberRankings: React.FC = () => {
                       {idx + 1}
                     </div>
                     <div className="ml-3">
-                      <p className="font-semibold">{member.memberAccount}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{member.memberAccount}</p>
                     </div>
                   </div>
-                  <div className="text-2xl font-bold">{formatHours(member.totalHours)}</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatHours(member.totalHours)}</div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 mt-4 text-xs text-gray-600">
+                <div className="grid grid-cols-3 gap-2 mt-4 text-xs text-gray-600 dark:text-gray-400">
                   <div>
                     <p className="font-medium">Sessions</p>
-                    <p className="text-gray-900 font-semibold">{member.sessionCount}</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-semibold">{member.sessionCount}</p>
                   </div>
                   <div>
                     <p className="font-medium">Avg. Time</p>
-                    <p className="text-gray-900 font-semibold">{formatHours(member.avgSessionHours)}</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-semibold">{formatHours(member.avgSessionHours)}</p>
                   </div>
                   <div>
                     <p className="font-medium">Top-ups</p>
-                    <p className="text-gray-900 font-semibold">{formatCurrency(member.totalTopups)}</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-semibold">{formatCurrency(member.totalTopups)}</p>
                   </div>
                 </div>
               </div>
@@ -195,19 +195,19 @@ const MemberRankings: React.FC = () => {
       )}
       
       {/* Rankings Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Rank
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Member
                 </th>
                 <th scope="col" 
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                     onClick={() => handleSort('totalHours')}>
                   <div className="flex items-center justify-end gap-1">
                     Hours
@@ -215,7 +215,7 @@ const MemberRankings: React.FC = () => {
                   </div>
                 </th>
                 <th scope="col" 
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                     onClick={() => handleSort('sessionCount')}>
                   <div className="flex items-center justify-end gap-1">
                     Sessions
@@ -223,7 +223,7 @@ const MemberRankings: React.FC = () => {
                   </div>
                 </th>
                 <th scope="col" 
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                     onClick={() => handleSort('avgSessionHours')}>
                   <div className="flex items-center justify-end gap-1">
                     Avg. Session
@@ -231,48 +231,48 @@ const MemberRankings: React.FC = () => {
                   </div>
                 </th>
                 <th scope="col" 
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                     onClick={() => handleSort('totalTopups')}>
                   <div className="flex items-center justify-end gap-1">
                     Top-ups
                     {getSortIcon('totalTopups')}
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Last Active
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {sortedRankings.map((member, index) => (
                 <tr key={member.memberAccount} className={getRankClass(index)}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                     {index + 1}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-800 dark:text-indigo-200 font-semibold">
                         {member.memberAccount.charAt(0).toUpperCase()}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">@{member.memberAccount}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">@{member.memberAccount}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="text-sm font-semibold text-gray-900">{formatHours(member.totalHours)}</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatHours(member.totalHours)}</div>
                     {/* Progress bar removed */}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">
                     {member.sessionCount}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">
                     {formatHours(member.avgSessionHours)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">
                     {formatCurrency(member.totalTopups)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500 dark:text-gray-400">
                     {formatDate(member.lastActive)}
                   </td>
                 </tr>

@@ -10,19 +10,44 @@ interface PcCardProps {
 }
 
 const PcCard: React.FC<PcCardProps> = ({ pc, isSelected, onClick }) => {
-  // Tailwind classes based on status
+  // Tailwind classes based on status with dark mode support
   const getStatusClasses = (status: PcStatus): { bg: string; border: string; dot: string; text: string } => {
     switch (status) {
       case PcStatus.IN_USE:
-        return { bg: 'bg-blue-50', border: 'border-blue-200', dot: 'bg-blue-500', text: 'text-blue-800' };
+        return { 
+          bg: 'bg-blue-50 dark:bg-blue-900/20', 
+          border: 'border-blue-200 dark:border-blue-700', 
+          dot: 'bg-blue-500', 
+          text: 'text-blue-800 dark:text-blue-300' 
+        };
       case PcStatus.AVAILABLE:
-        return { bg: 'bg-green-50', border: 'border-green-200', dot: 'bg-green-500', text: 'text-green-800' };
+        return { 
+          bg: 'bg-green-50 dark:bg-green-900/20', 
+          border: 'border-green-200 dark:border-green-700', 
+          dot: 'bg-green-500', 
+          text: 'text-green-800 dark:text-green-300' 
+        };
       case PcStatus.OFFLINE:
-        return { bg: 'bg-gray-100', border: 'border-gray-300', dot: 'bg-gray-400', text: 'text-gray-600' };
+        return { 
+          bg: 'bg-gray-100 dark:bg-gray-800', 
+          border: 'border-gray-300 dark:border-gray-600', 
+          dot: 'bg-gray-400 dark:bg-gray-500', 
+          text: 'text-gray-600 dark:text-gray-400' 
+        };
       case PcStatus.MAINTENANCE:
-        return { bg: 'bg-yellow-50', border: 'border-yellow-300', dot: 'bg-yellow-500', text: 'text-yellow-800' };
+        return { 
+          bg: 'bg-yellow-50 dark:bg-yellow-900/20', 
+          border: 'border-yellow-300 dark:border-yellow-700', 
+          dot: 'bg-yellow-500', 
+          text: 'text-yellow-800 dark:text-yellow-300' 
+        };
       default:
-        return { bg: 'bg-gray-50', border: 'border-gray-200', dot: 'bg-gray-400', text: 'text-gray-500' };
+        return { 
+          bg: 'bg-gray-50 dark:bg-gray-800', 
+          border: 'border-gray-200 dark:border-gray-600', 
+          dot: 'bg-gray-400 dark:bg-gray-500', 
+          text: 'text-gray-500 dark:text-gray-400' 
+        };
     }
   };
 

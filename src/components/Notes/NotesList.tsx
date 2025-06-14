@@ -5,7 +5,6 @@ import { Pc } from '../../types/Pc';
 import NoteItem from './NoteItem';
 import CreateNoteForm from './CreateNoteForm';
 import { NotesApi } from '../../api/notesApi';
-import './Notes.css';
 
 interface NotesListProps {
   selectedMember?: Member;
@@ -84,25 +83,25 @@ const NotesList: React.FC<NotesListProps> = ({
   const renderContext = () => {
     if (selectedPc && !selectedMember) {
       return (
-        <div className="notes-context">
-          <h3>PC: {selectedPc.pc_name}</h3>
-          <p className="notes-warning">Select a member to view or create notes.</p>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">PC: {selectedPc.pc_name}</h3>
+          <p className="text-yellow-600 dark:text-yellow-400 text-sm">Select a member to view or create notes.</p>
         </div>
       );
     }
     
     else if (selectedMember) {
       return (
-        <div className="notes-context">
-          <h3>Notes for Member: {selectedMember.member_account}</h3>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notes for Member: {selectedMember.member_account}</h3>
         </div>
       );
     } else if (selectedPc) {
       return (
-        <div className="notes-context">
-          <h3>Notes for PC: {selectedPc.pc_name}</h3>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notes for PC: {selectedPc.pc_name}</h3>
           {selectedPc.current_member_account && (
-            <p>Current user: {selectedPc.current_member_account}</p>
+            <p className="text-gray-600 dark:text-gray-400">Current user: {selectedPc.current_member_account}</p>
           )}
         </div>
       );
@@ -112,7 +111,7 @@ const NotesList: React.FC<NotesListProps> = ({
 
   if (!selectedMember && !selectedPc) {
     return (
-      <div className="notes-empty-state">
+      <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
         <p>Select a member or PC to view notes</p>
       </div>
     );
@@ -155,7 +154,7 @@ const NotesList: React.FC<NotesListProps> = ({
   // );
 
   return (
-    <div className="notes-container">
+    <div className="p-4 flex flex-col h-full">
       {renderContext()}
       
       {/* Only show create form if we have a member */}
@@ -168,15 +167,19 @@ const NotesList: React.FC<NotesListProps> = ({
       )}
 
       {loading ? (
-        <div className="notes-loading">Loading notes...</div>
+        <div className="flex items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+          <p>Loading notes...</p>
+        </div>
       ) : error ? (
-        <div className="notes-error">{error}</div>
+        <div className="flex items-center justify-center py-8 text-red-600 dark:text-red-400">
+          <p>{error}</p>
+        </div>
       ) : notes.length === 0 ? (
-        <div className="notes-empty">
+        <div className="flex items-center justify-center py-8 text-gray-500 dark:text-gray-400">
           <p>No active notes found</p>
         </div>
       ) : (
-        <div className="notes-list">
+        <div className="flex-1 overflow-y-auto space-y-4">
           {notes.map(note => (
             <NoteItem 
               key={note.id} 

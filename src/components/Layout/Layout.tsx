@@ -30,8 +30,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, to, active, colla
 
   const className = `flex items-center w-full px-4 py-3 transition-colors duration-200 ${
     active
-      ? 'bg-indigo-800 text-white'
-      : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'
+      ? 'bg-indigo-800 dark:bg-gray-700 text-white'
+      : 'text-indigo-100 dark:text-gray-300 hover:bg-indigo-700 dark:hover:bg-gray-700 hover:text-white'
   }`;
 
   if (to) {
@@ -81,17 +81,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 text-gray-800 font-sans">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
       {/* Sidebar */}
-      <div className={`flex flex-col bg-indigo-900 text-white transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'w-16' : 'w-64'}`}>
+      <div className={`flex flex-col bg-indigo-900 dark:bg-gray-800 text-white transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'w-16' : 'w-64'}`}>
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-indigo-800 flex-shrink-0">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-indigo-800 dark:border-gray-700 flex-shrink-0">
           {!sidebarCollapsed && (
             <h1 className="text-xl font-bold whitespace-nowrap">iCafe Notes</h1>
           )}
           <button
             onClick={toggleSidebar}
-            className="p-1 rounded text-indigo-200 hover:bg-indigo-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="p-1 rounded text-indigo-200 dark:text-gray-300 hover:bg-indigo-700 dark:hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-gray-500"
             aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <Menu size={20} />
@@ -124,7 +124,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
 
         {/* Logout Button at the bottom */}
-        <div className="p-4 mt-auto border-t border-indigo-800">
+        <div className="p-4 mt-auto border-t border-indigo-800 dark:border-gray-700">
           <SidebarItem
             icon={<LogOut size={20}/>}
             text="Logout"
@@ -138,14 +138,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation Bar (Optional) */}
-        <header className="bg-white shadow-sm z-10 h-16 flex-shrink-0">
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10 h-16 flex-shrink-0">
           <div className="flex items-center justify-end p-4 h-full">
             {/* Placeholder for Top Nav Content */}
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4 md:p-6">
           {children}
         </main>
       </div>

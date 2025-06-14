@@ -40,26 +40,26 @@ const CustomProductModal: React.FC<CustomProductModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg w-full max-w-md p-6 relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md p-6 relative">
                 {/* Close button */}
                 <button
                     onClick={onClose}
                     disabled={isLoading}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                    className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
                     aria-label="Close modal"
                 >
                     <X size={20} />
                 </button>
 
                 {/* Header */}
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Add Custom Product</h2>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Add Custom Product</h2>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit}>
                     {/* Product Name Input */}
                     <div className="mb-4">
-                        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Product Name
                         </label>
                         <input
@@ -69,13 +69,13 @@ const CustomProductModal: React.FC<CustomProductModalProps> = ({
                             onChange={(e) => setProductName(e.target.value)}
                             placeholder="Enter product name"
                             disabled={isLoading}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-600"
                         />
                     </div>
 
                     {/* Price Input */}
                     <div className="mb-4">
-                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Price
                         </label>
                         <div className="relative">
@@ -88,9 +88,9 @@ const CustomProductModal: React.FC<CustomProductModalProps> = ({
                                 min="0"
                                 step="1"
                                 disabled={isLoading}
-                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                                className="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-600"
                             />
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">L</span>
+                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">L</span>
                         </div>
                     </div>
 

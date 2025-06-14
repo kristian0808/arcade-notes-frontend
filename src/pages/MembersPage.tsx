@@ -26,12 +26,12 @@ const MembersPage: React.FC = () => {
         {isConnected && (
           <div className="absolute top-20 right-6 flex items-center">
             <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
-            <span className="text-xs text-gray-500">Real-time updates connected</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Real-time updates connected</span>
           </div>
         )}
 
         {/* Member List Section - Left Sidebar */}
-        <div className="lg:w-1/4 bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-full">
+        <div className="lg:w-1/4 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col h-full">
           <MemberList
             onMemberSelect={handleMemberSelect}
             selectedMemberId={selectedMember?.member_id}
@@ -42,12 +42,12 @@ const MembersPage: React.FC = () => {
         {/* Main Content Area - Right Side */}
         <div className="flex-1 flex flex-col h-full overflow-hidden">
           {/* Tab Navigation */}
-          <div className="bg-white border-b border-gray-200 rounded-t-lg">
+          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
             <div className="flex">
               <button 
                 className={`px-4 py-3 font-medium text-sm ${selectedTab === 'info' 
                   ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                  : 'text-gray-500 hover:text-gray-700'}`}
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
                 onClick={() => setSelectedTab('info')}
                 disabled={!selectedMember}
               >
@@ -56,7 +56,7 @@ const MembersPage: React.FC = () => {
               <button 
                 className={`px-4 py-3 font-medium text-sm ${selectedTab === 'notes' 
                   ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                  : 'text-gray-500 hover:text-gray-700'}`}
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
                 onClick={() => setSelectedTab('notes')}
                 disabled={!selectedMember}
               >
@@ -65,7 +65,7 @@ const MembersPage: React.FC = () => {
               <button 
                 className={`px-4 py-3 font-medium text-sm ${selectedTab === 'rankings' 
                   ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                  : 'text-gray-500 hover:text-gray-700'}`}
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
                 onClick={() => setSelectedTab('rankings')}
               >
                 Rankings
@@ -74,7 +74,7 @@ const MembersPage: React.FC = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
             {selectedTab === 'rankings' && (
               <MemberRankings />
             )}
@@ -84,13 +84,13 @@ const MembersPage: React.FC = () => {
             )}
             
             {selectedTab === 'info' && selectedMember && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Member Information</h2>
-                <div className="space-y-4">
-                  <p><strong>Account:</strong> {selectedMember.member_account}</p>
-                  <p><strong>Name:</strong> {selectedMember.member_first_name} {selectedMember.member_last_name}</p>
-                  <p><strong>Balance:</strong> {selectedMember.member_balance}</p>
-                  <p><strong>Status:</strong> {selectedMember.member_is_active ? 'Active' : 'Inactive'}</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Member Information</h2>
+                <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                  <p><strong className="text-gray-900 dark:text-gray-100">Account:</strong> {selectedMember.member_account}</p>
+                  <p><strong className="text-gray-900 dark:text-gray-100">Name:</strong> {selectedMember.member_first_name} {selectedMember.member_last_name}</p>
+                  <p><strong className="text-gray-900 dark:text-gray-100">Balance:</strong> {selectedMember.member_balance}</p>
+                  <p><strong className="text-gray-900 dark:text-gray-100">Status:</strong> {selectedMember.member_is_active ? 'Active' : 'Inactive'}</p>
                   {/* Add more member info fields as needed */}
                 </div>
               </div>
@@ -98,7 +98,7 @@ const MembersPage: React.FC = () => {
             
             {/* Empty state for info/notes if no member selected */}
             {(selectedTab === 'info' || selectedTab === 'notes') && !selectedMember && (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
                 <p>Select a member to view {selectedTab === 'info' ? 'information' : 'notes'}</p>
               </div>
             )}

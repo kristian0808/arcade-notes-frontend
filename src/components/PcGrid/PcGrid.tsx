@@ -42,34 +42,108 @@ const PcGrid: React.FC<PcGridProps> = ({
         </div>
       );
     }
-    // Grid for PCs
+    // Separate and order PCs by room with custom layout
+    const allPcs = pcs.filter(pc => {
+      const pcNum = parseInt(pc.pc_name.replace(/\D/g, ''));
+      return pcNum >= 1 && pcNum <= 40;
+    });
+
+    // Standard Room: Alternating pattern (ascending, descending, ascending, descending)
+    // Row 1: PC16-PC20 (ascending), Row 2: PC15-PC11 (descending), Row 3: PC06-PC10 (ascending), Row 4: PC05-PC01 (descending)
+    const standardOrder = [
+      16, 17, 18, 19, 20,  // Row 1 (ascending)
+      15, 14, 13, 12, 11,  // Row 2 (descending)
+      6, 7, 8, 9, 10,      // Row 3 (ascending)
+      5, 4, 3, 2, 1        // Row 4 (descending)
+    ];
+    const standardRoomPcs = standardOrder.map(num => 
+      allPcs.find(pc => parseInt(pc.pc_name.replace(/\D/g, '')) === num)
+    ).filter((pc): pc is Pc => pc !== undefined);
+
+    // VIP Room: Custom ordering for columns
+    // Left column: PC30→PC21 (descending), Right column: PC40→PC31 (descending)
+    const vipLeftOrder = [30, 29, 28, 27, 26, 25, 24, 23, 22, 21];
+    const vipRightOrder = [40, 39, 38, 37, 36, 35, 34, 33, 32, 31];
+    
+    const vipLeftPcs = vipLeftOrder.map(num => 
+      allPcs.find(pc => parseInt(pc.pc_name.replace(/\D/g, '')) === num)
+    ).filter((pc): pc is Pc => pc !== undefined);
+    
+    const vipRightPcs = vipRightOrder.map(num => 
+      allPcs.find(pc => parseInt(pc.pc_name.replace(/\D/g, '')) === num)
+    ).filter((pc): pc is Pc => pc !== undefined);
+
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 md:gap-4 [&>*:focus]:outline-none">
-        {pcs.map((pc) => (
-          <PcCard
-            key={pc.pc_id} // Use a stable key
-            pc={pc}
-            isSelected={selectedPc?.pc_id === pc.pc_id}
-            onClick={onPcSelect} // Pass the selection handler
-          />
-        ))}
+      <div className="flex gap-16 justify-center max-w-5xl mx-auto">
+        {/* VIP Room - Left Side Panel */}
+        <div className="flex-shrink-0">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2 text-center">VIP Room</h2>
+            <div className="w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+          </div>
+          <div className="flex gap-6">
+            {/* Left column (PC30→PC21) */}
+            <div className="flex flex-col gap-3">
+              {vipLeftPcs.map((pc) => (
+                <PcCard
+                  key={pc.pc_id}
+                  pc={pc}
+                  isSelected={selectedPc?.pc_id === pc.pc_id}
+                  onClick={onPcSelect}
+                />
+              ))}
+            </div>
+            {/* Right column (PC40→PC31) */}
+            <div className="flex flex-col gap-3">
+              {vipRightPcs.map((pc) => (
+                <PcCard
+                  key={pc.pc_id}
+                  pc={pc}
+                  isSelected={selectedPc?.pc_id === pc.pc_id}
+                  onClick={onPcSelect}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Standard Room - Main Grid */}
+        <div className="flex-shrink-0">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2 text-center">Standard Room</h2>
+            <div className="w-full h-0.5 bg-gradient-to-r from-blue-400 to-green-400 rounded-full"></div>
+          </div>
+          <div className="flex flex-col gap-12">
+            {/* First 2 rows (PC01-PC10) */}
+            <div className="grid grid-cols-5 gap-3">
+              {standardRoomPcs.slice(0, 10).map((pc) => (
+                <PcCard
+                  key={pc.pc_id}
+                  pc={pc}
+                  isSelected={selectedPc?.pc_id === pc.pc_id}
+                  onClick={onPcSelect}
+                />
+              ))}
+            </div>
+            {/* Last 2 rows (PC11-PC20) */}
+            <div className="grid grid-cols-5 gap-3">
+              {standardRoomPcs.slice(10, 20).map((pc) => (
+                <PcCard
+                  key={pc.pc_id}
+                  pc={pc}
+                  isSelected={selectedPc?.pc_id === pc.pc_id}
+                  onClick={onPcSelect}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
 
   return (
     <div className="pc-grid-content">
-      {/* Real-time indicator */}
-      {isConnected && (
-        <div className="mb-3 flex items-center text-xs text-green-700">
-          <span className="relative flex h-2 w-2 mr-2">
-            <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-          Real-time updates active
-        </div>
-      )}
-      
       {renderContent()}
     </div>
   );
