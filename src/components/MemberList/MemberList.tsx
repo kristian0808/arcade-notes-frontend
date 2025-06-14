@@ -14,13 +14,15 @@ interface MemberListProps {
   selectedMemberId?: number; // Keep this prop to indicate selection
   showActiveTabsOnly?: boolean; // New prop to control view mode
   onViewModeChange?: (showActiveTabsOnly: boolean) => void; // Callback for view mode changes
+  refreshTrigger?: number; // Trigger to refresh active tab members
 }
 
 const MemberList: React.FC<MemberListProps> = ({ 
   onMemberSelect, 
   selectedMemberId, 
   showActiveTabsOnly = true,
-  onViewModeChange 
+  onViewModeChange,
+  refreshTrigger 
 }) => {
   const { members: webSocketMembers, isConnected } = useWebSocket();
   const [members, setMembers] = useState<Member[]>([]);
@@ -144,6 +146,13 @@ const MemberList: React.FC<MemberListProps> = ({
       }
     }
   }, [searchQuery, onViewModeChange]);
+
+  // Refresh active tab members when refresh trigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0 && showActiveTabsOnly) {
+      fetchActiveTabMembers();
+    }
+  }, [refreshTrigger, showActiveTabsOnly]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);

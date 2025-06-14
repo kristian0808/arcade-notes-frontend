@@ -92,6 +92,9 @@ const Dashboard: React.FC = () => {
   
   // State for member list view mode - default to true (show active tabs by default)
   const [showActiveTabsOnly, setShowActiveTabsOnly] = useState<boolean>(true);
+  
+  // State to trigger refresh of active tab members
+  const [refreshActiveTabsTrigger, setRefreshActiveTabsTrigger] = useState<number>(0);
 
   // --- Data Fetching ---
   const fetchInitialData = useCallback(async () => {
@@ -268,8 +271,9 @@ const Dashboard: React.FC = () => {
       const response = await TabsApi.closeTab(activeTab.id);
       if (response.success) {
         setActiveTab(null); // Clear the active tab
-        // Optionally refresh PC/Member data if tab status affects flags
-        // fetchInitialData();
+        // Refresh PC data to update stats and active tab members list
+        fetchInitialData();
+        setRefreshActiveTabsTrigger(prev => prev + 1);
       } else {
         setTabError(response.error || 'Failed to close tab');
       }
@@ -284,6 +288,10 @@ const Dashboard: React.FC = () => {
   // Callback passed to TabView (and potentially NotesList if notes affect tabs)
   const handleTabUpdated = (updatedTab: Tab) => {
     setActiveTab(updatedTab); // Update the active tab state
+    // Refresh PC data to update stats
+    fetchInitialData();
+    // Trigger refresh of active tab members list
+    setRefreshActiveTabsTrigger(prev => prev + 1);
   };
 
   // Handler for clicking on "PCs with Tabs" stat card (optional, since it's default now)
@@ -409,6 +417,7 @@ const Dashboard: React.FC = () => {
               selectedMemberId={selectedMember?.member_id}
               showActiveTabsOnly={showActiveTabsOnly}
               onViewModeChange={setShowActiveTabsOnly}
+              refreshTrigger={refreshActiveTabsTrigger}
             />
           </div>
 
