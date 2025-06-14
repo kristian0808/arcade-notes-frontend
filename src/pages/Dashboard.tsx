@@ -70,7 +70,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
 // --- Main Dashboard Component ---
 const Dashboard: React.FC = () => {
 
-  const { pcs: webSocketPcs, members: webSocketMembers, isConnected } = useWebSocket();
+  const { pcs: webSocketPcs, members: webSocketMembers, activeTabsData, isConnected } = useWebSocket();
   // --- State Definitions ---
   const [pcs, setPcs] = useState<Pc[]>([]);
   const [pcsLoading, setPcsLoading] = useState<boolean>(true);
@@ -271,8 +271,7 @@ const Dashboard: React.FC = () => {
       const response = await TabsApi.closeTab(activeTab.id);
       if (response.success) {
         setActiveTab(null); // Clear the active tab
-        // Refresh PC data to update stats and active tab members list
-        fetchInitialData();
+        // Trigger refresh of active tab members list without full data refresh
         setRefreshActiveTabsTrigger(prev => prev + 1);
       } else {
         setTabError(response.error || 'Failed to close tab');
@@ -288,9 +287,7 @@ const Dashboard: React.FC = () => {
   // Callback passed to TabView (and potentially NotesList if notes affect tabs)
   const handleTabUpdated = (updatedTab: Tab) => {
     setActiveTab(updatedTab); // Update the active tab state
-    // Refresh PC data to update stats
-    fetchInitialData();
-    // Trigger refresh of active tab members list
+    // Trigger refresh of active tab members list without full data refresh
     setRefreshActiveTabsTrigger(prev => prev + 1);
   };
 
@@ -309,7 +306,8 @@ const Dashboard: React.FC = () => {
     const availablePCs = pcs.filter(pc => pc.status === PcStatus.AVAILABLE).length;
     // Assuming has_notes and has_active_tab flags come directly from the API response for each Pc
     const pcsWithNotes = pcs.filter(pc => pc.has_notes ?? false).length;
-    const pcsWithTabs = pcs.filter(pc => pc.has_active_tab ?? false).length;
+    // Use WebSocket active tabs data instead of PC-based tabs count
+    const pcsWithTabs = activeTabsData?.count ?? 0;
 
     return {
       totalPCs,
@@ -319,7 +317,7 @@ const Dashboard: React.FC = () => {
       pcsWithTabs,
       usagePercentage: totalPCs > 0 ? Math.round((inUsePCs / totalPCs) * 100) : 0
     };
-  }, [pcs]); // Depends only on the pcs list
+  }, [pcs, activeTabsData]); // Depend on both pcs and activeTabsData
 
   const stats = calculateStats();
 
