@@ -90,8 +90,8 @@ const Dashboard: React.FC = () => {
   const [isClosingTab, setIsClosingTab] = useState<boolean>(false);   // Loading state for POST /tabs/:id/close
   const [tabError, setTabError] = useState<string | null>(null);     // Errors related to tab operations
   
-  // State for member list view mode
-  const [showActiveTabsOnly, setShowActiveTabsOnly] = useState<boolean>(false);
+  // State for member list view mode - default to true (show active tabs by default)
+  const [showActiveTabsOnly, setShowActiveTabsOnly] = useState<boolean>(true);
 
   // --- Data Fetching ---
   const fetchInitialData = useCallback(async () => {
@@ -286,7 +286,7 @@ const Dashboard: React.FC = () => {
     setActiveTab(updatedTab); // Update the active tab state
   };
 
-  // Handler for clicking on "PCs with Tabs" stat card
+  // Handler for clicking on "PCs with Tabs" stat card (optional, since it's default now)
   const handleTabsStatClick = () => {
     setShowActiveTabsOnly(true);
   };

@@ -19,7 +19,7 @@ interface MemberListProps {
 const MemberList: React.FC<MemberListProps> = ({ 
   onMemberSelect, 
   selectedMemberId, 
-  showActiveTabsOnly = false,
+  showActiveTabsOnly = true,
   onViewModeChange 
 }) => {
   const { members: webSocketMembers, isConnected } = useWebSocket();
@@ -132,12 +132,18 @@ const MemberList: React.FC<MemberListProps> = ({
     }
   }, [showActiveTabsOnly]);
 
-  // Reset to show all members when starting to search
+  // Switch view modes based on search input
   useEffect(() => {
-    if (searchQuery.trim() && showActiveTabsOnly && onViewModeChange) {
-      onViewModeChange(false);
+    if (onViewModeChange) {
+      if (searchQuery.trim()) {
+        // Show regular members when searching
+        onViewModeChange(false);
+      } else {
+        // Show active tabs when no search input
+        onViewModeChange(true);
+      }
     }
-  }, [searchQuery, showActiveTabsOnly, onViewModeChange]);
+  }, [searchQuery, onViewModeChange]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -181,11 +187,6 @@ const MemberList: React.FC<MemberListProps> = ({
               }}
               isSelected={selectedMemberId === activeTabMember.memberId}
               onClick={(member) => handleMemberClick(member)}
-              tabInfo={{
-                totalAmount: activeTabMember.totalAmount,
-                itemCount: activeTabMember.itemCount,
-                pcName: activeTabMember.pcName
-              }}
             />
           ))}
         </div>
@@ -224,8 +225,8 @@ const MemberList: React.FC<MemberListProps> = ({
   };
 
   return (
-    // Use Tailwind for the container and layout
-    <div className="member-list-container bg-white rounded-lg shadow-sm flex flex-col h-full overflow-hidden">
+    // Use Tailwind for the container and layout with fixed height
+    <div className="member-list-container bg-white rounded-lg shadow-sm flex flex-col h-80 overflow-hidden">
       {/* Header/Search Area */}
       <div className="p-3 border-b flex-shrink-0">
         <div className="relative">
