@@ -24,14 +24,14 @@ const MemberList: React.FC<MemberListProps> = ({
   onViewModeChange,
   refreshTrigger 
 }) => {
-  const { members: webSocketMembers, isConnected } = useWebSocket();
+  const { members: webSocketMembers, activeTabsData, isConnected } = useWebSocket();
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // State for active tab members
+  // State for active tab members (now using WebSocket data)
   const [activeTabMembers, setActiveTabMembers] = useState<any[]>([]);
   const [activeTabsLoading, setActiveTabsLoading] = useState<boolean>(false);
   const [activeTabsError, setActiveTabsError] = useState<string | null>(null);
@@ -127,12 +127,22 @@ const MemberList: React.FC<MemberListProps> = ({
     filterMembers(searchQuery, members);
   }, [searchQuery, members]);
 
-  // Fetch active tab members when showActiveTabsOnly is true
+  // Update active tab members from WebSocket data
   useEffect(() => {
-    if (showActiveTabsOnly) {
+    if (activeTabsData && activeTabsData.activeMembersWithTabs) {
+      console.log("MemberList: Using WebSocket active tabs data");
+      setActiveTabMembers(activeTabsData.activeMembersWithTabs);
+      setActiveTabsLoading(false);
+      setActiveTabsError(null);
+    }
+  }, [activeTabsData]);
+
+  // Fallback: Fetch active tab members when showActiveTabsOnly is true and no WebSocket data
+  useEffect(() => {
+    if (showActiveTabsOnly && !activeTabsData) {
       fetchActiveTabMembers();
     }
-  }, [showActiveTabsOnly]);
+  }, [showActiveTabsOnly, activeTabsData]);
 
   // Switch view modes based on search input
   useEffect(() => {
@@ -147,12 +157,12 @@ const MemberList: React.FC<MemberListProps> = ({
     }
   }, [searchQuery, onViewModeChange]);
 
-  // Refresh active tab members when refresh trigger changes
+  // Refresh active tab members when refresh trigger changes (only as fallback)
   useEffect(() => {
-    if (refreshTrigger && refreshTrigger > 0 && showActiveTabsOnly) {
+    if (refreshTrigger && refreshTrigger > 0 && showActiveTabsOnly && !activeTabsData) {
       fetchActiveTabMembers();
     }
-  }, [refreshTrigger, showActiveTabsOnly]);
+  }, [refreshTrigger, showActiveTabsOnly, activeTabsData]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);

@@ -3,10 +3,26 @@ import { io, Socket } from 'socket.io-client';
 import { Pc } from '../types/Pc';
 import { Member } from '../types/Member';
 
+interface ActiveTabMember {
+  memberId: number;
+  memberAccount: string;
+  pcName: string;
+  totalAmount: number;
+  itemCount: number;
+  createdAt: string;
+  tabId: string;
+}
+
+interface ActiveTabsData {
+  count: number;
+  activeMembersWithTabs: ActiveTabMember[];
+}
+
 interface WebSocketContextType {
   isConnected: boolean;
   pcs: Pc[] | null;
   members: Member[] | null;
+  activeTabsData: ActiveTabsData | null;
   error: string | null;
 }
 
@@ -14,6 +30,7 @@ const WebSocketContext = createContext<WebSocketContextType>({
   isConnected: false,
   pcs: null,
   members: null,
+  activeTabsData: null,
   error: null
 });
 
@@ -28,6 +45,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [pcs, setPcs] = useState<Pc[] | null>(null);
   const [members, setMembers] = useState<Member[] | null>(null);
+  const [activeTabsData, setActiveTabsData] = useState<ActiveTabsData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -69,6 +87,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       setMembers(updatedMembers);
     });
 
+    // Listen for active tabs updates
+    socketInstance.on('active_tabs_update', (data: ActiveTabsData) => {
+      console.log('Received active tabs updates via WebSocket', data);
+      setActiveTabsData(data);
+    });
+
     setSocket(socketInstance);
 
     // Cleanup on unmount
@@ -81,7 +105,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ isConnected, pcs, members, error }}>
+    <WebSocketContext.Provider value={{ isConnected, pcs, members, activeTabsData, error }}>
       {children}
     </WebSocketContext.Provider>
   );
