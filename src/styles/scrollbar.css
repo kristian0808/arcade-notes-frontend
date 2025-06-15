@@ -1,0 +1,78 @@
+/* Modern Scrollbar Styles - Global */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4); /* Light gray for light mode */
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3); /* Darker for dark mode */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+/* Smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar on mobile/touch devices */
+@media (hover: none) and (pointer: coarse) {
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+  
+  * {
+    scrollbar-width: none;
+  }
+}
+
+/* Auto-hide scrollbar with fade effect */
+.scrollbar-hide-auto {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide-auto::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide-auto:hover {
+  scrollbar-width: thin;
+}
+
+.scrollbar-hide-auto:hover::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+  height: 6px;
+}
