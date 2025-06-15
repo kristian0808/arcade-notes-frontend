@@ -15,17 +15,17 @@ const PcCard: React.FC<PcCardProps> = ({ pc, isSelected, onClick }) => {
     switch (status) {
       case PcStatus.IN_USE:
         return { 
-          bg: 'bg-blue-50 dark:bg-blue-900/20', 
-          border: 'border-blue-200 dark:border-blue-700', 
-          dot: 'bg-blue-500', 
-          text: 'text-blue-800 dark:text-blue-300' 
-        };
-      case PcStatus.AVAILABLE:
-        return { 
           bg: 'bg-green-50 dark:bg-green-900/20', 
           border: 'border-green-200 dark:border-green-700', 
           dot: 'bg-green-500', 
           text: 'text-green-800 dark:text-green-300' 
+        };
+      case PcStatus.AVAILABLE:
+        return { 
+          bg: 'bg-blue-50 dark:bg-blue-900/20', 
+          border: 'border-blue-200 dark:border-blue-700', 
+          dot: 'bg-blue-500', 
+          text: 'text-blue-800 dark:text-blue-300' 
         };
       case PcStatus.OFFLINE:
         return { 

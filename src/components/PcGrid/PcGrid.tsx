@@ -83,7 +83,7 @@ const PcGrid: React.FC<PcGridProps> = ({
           </div>
           <div className="flex gap-6">
             {/* Left column (PC30→PC21) */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 w-[100px]">
               {vipLeftPcs.map((pc) => (
                 <PcCard
                   key={pc.pc_id}
@@ -94,7 +94,7 @@ const PcGrid: React.FC<PcGridProps> = ({
               ))}
             </div>
             {/* Right column (PC40→PC31) */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 w-[100px]">
               {vipRightPcs.map((pc) => (
                 <PcCard
                   key={pc.pc_id}
