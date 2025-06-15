@@ -206,6 +206,7 @@ const MemberList: React.FC<MemberListProps> = ({
               }}
               isSelected={selectedMemberId === activeTabMember.memberId}
               onClick={(member) => handleMemberClick(member)}
+              hasActiveTab={true}
             />
           ))}
         </div>

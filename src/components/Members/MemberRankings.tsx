@@ -162,10 +162,10 @@ const MemberRankings: React.FC = () => {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white
-                                  ${idx === 0 ? 'bg-yellow-500' : 
-                                    idx === 1 ? 'bg-gray-500' : 
-                                    'bg-orange-500'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold
+                                  ${idx === 0 ? 'bg-yellow-500 text-white' : 
+                                    idx === 1 ? 'bg-gray-500 text-white' : 
+                                    'bg-orange-500 text-white'}`}>
                       {idx + 1}
                     </div>
                     <div className="ml-3">
