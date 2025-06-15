@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
       <Card className="w-[350px] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-900 dark:text-gray-100">Login</CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">Enter your credentials to access the arcade notes.</CardDescription>
+          <CardDescription className="text-gray-600 dark:text-gray-400">Enter your credentials to access the Arcade Gaming Zone.</CardDescription>
         </CardHeader>
         {/* Use form inside CardContent for proper structure */}
         <form onSubmit={handleSubmit}>

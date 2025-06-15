@@ -25,7 +25,7 @@ const Header: React.FC = () => {
   return (
     <header className="app-header">
       <div className="header-logo">
-        <h1>iCafe Notes</h1>
+        <h1>Arcade Gaming Zone</h1>
       </div>
       
       <button className={`menu-toggle ${menuOpen ? 'open' : ''}`} onClick={toggleMenu}>
