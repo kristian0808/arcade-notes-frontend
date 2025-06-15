@@ -113,9 +113,9 @@ const MemberRankings: React.FC = () => {
     // Only apply special styling if sorted by totalHours (default ranking)
     if (sortField === 'totalHours' && sortDirection === 'desc') {
       switch (index) {
-        case 0: return "bg-yellow-50 border-l-4 border-yellow-400";
-        case 1: return "bg-gray-50 border-l-4 border-gray-400";
-        case 2: return "bg-orange-50 border-l-4 border-orange-400";
+        case 0: return "bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400";
+        case 1: return "bg-gray-50 dark:bg-gray-700/50 border-l-4 border-gray-400";
+        case 2: return "bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-400";
         default: return "";
       }
     }

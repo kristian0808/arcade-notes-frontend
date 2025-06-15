@@ -246,7 +246,7 @@ const MemberList: React.FC<MemberListProps> = ({
 
   return (
     // Use Tailwind for the container and layout with fixed height
-    <div className="member-list-container bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col h-80 overflow-hidden">
+    <div className="member-list-container bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col h-96 overflow-hidden">
       {/* Header/Search Area */}
       <div className="p-3 border-b dark:border-gray-700 flex-shrink-0">
         <div className="relative">
@@ -260,8 +260,8 @@ const MemberList: React.FC<MemberListProps> = ({
             aria-label="Search members"
           />
         </div>
-        {/* WebSocket indicator */}
-        {isConnected && (
+        {/* WebSocket indicator - commented out for cleaner UI */}
+        {/* {isConnected && (
           <div className="mt-2 flex items-center text-xs text-green-700 dark:text-green-400">
             <span className="relative flex h-2 w-2 mr-2">
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
@@ -269,7 +269,7 @@ const MemberList: React.FC<MemberListProps> = ({
             </span>
             Real-time updates active
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Content Area (List or Messages) */}

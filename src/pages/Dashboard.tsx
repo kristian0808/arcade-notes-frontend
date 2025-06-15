@@ -262,6 +262,42 @@ const Dashboard: React.FC = () => {
       setTabError(null); // Clear error if no member selected
       return;
     }
+
+    // First, check if we have WebSocket data for this member
+    if (activeTabsData && activeTabsData.activeMembersWithTabs) {
+      const existingTab = activeTabsData.activeMembersWithTabs.find(
+        tabData => tabData.memberId === memberId
+      );
+      
+      if (existingTab) {
+        // Use WebSocket data - no API call needed!
+        console.log("Using WebSocket data for active tab - no API call needed");
+        setActiveTab({
+          id: existingTab.tabId,
+          memberId: existingTab.memberId,
+          memberAccount: existingTab.memberAccount,
+          pcName: existingTab.pcName,
+          status: 'active',
+          items: [], // WebSocket data doesn't include items - will be loaded when needed
+          totalAmount: existingTab.totalAmount,
+          createdAt: existingTab.createdAt,
+          updatedAt: new Date().toISOString()
+        });
+        setTabError(null);
+        setIsCheckingTab(false);
+        return;
+      } else {
+        // Member not in active tabs list - they don't have an active tab
+        console.log("Member not in WebSocket active tabs - no tab exists");
+        setActiveTab(null);
+        setTabError(null);
+        setIsCheckingTab(false);
+        return;
+      }
+    }
+
+    // Fallback to API call only if WebSocket data is not available
+    console.log("WebSocket data not available - falling back to API call");
     setIsCheckingTab(true); // Use dedicated loading state
     setActiveTab(null); // Clear previous tab while checking
     setTabError(null); // Clear previous errors
@@ -288,7 +324,7 @@ const Dashboard: React.FC = () => {
     } finally {
       setIsCheckingTab(false); // Turn off loading state
     }
-  }, []); // No dependencies needed here
+  }, [activeTabsData]); // Add activeTabsData as dependency
 
 
   // --- Event Handlers ---
