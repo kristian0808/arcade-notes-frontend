@@ -270,21 +270,28 @@ const Dashboard: React.FC = () => {
       );
       
       if (existingTab) {
-        // Use WebSocket data - no API call needed!
-        console.log("Using WebSocket data for active tab - no API call needed");
-        setActiveTab({
-          id: existingTab.tabId,
-          memberId: existingTab.memberId,
-          memberAccount: existingTab.memberAccount,
-          pcName: existingTab.pcName,
-          status: 'active',
-          items: [], // WebSocket data doesn't include items - will be loaded when needed
-          totalAmount: existingTab.totalAmount,
-          createdAt: existingTab.createdAt,
-          updatedAt: new Date().toISOString()
-        });
+        // WebSocket confirms tab exists - now get full details including items
+        console.log("WebSocket confirms active tab exists - loading full details");
+        setIsCheckingTab(true);
         setTabError(null);
-        setIsCheckingTab(false);
+        
+        try {
+          const response = await TabsApi.getActiveTabForMember(memberId);
+          if (response.success && response.data) {
+            if ('active' in response.data && response.data.active === false) {
+              setActiveTab(null);
+            } else {
+              setActiveTab(response.data as Tab);
+            }
+          } else {
+            setTabError(response.error || 'Failed to load tab details');
+          }
+        } catch (error: any) {
+          console.error('Error loading tab details:', error);
+          setTabError(error.message || 'An unexpected error occurred loading tab');
+        } finally {
+          setIsCheckingTab(false);
+        }
         return;
       } else {
         // Member not in active tabs list - they don't have an active tab
