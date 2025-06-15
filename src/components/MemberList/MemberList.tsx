@@ -6,7 +6,7 @@ import { IcafeApi } from '../../api/icafeApi';
 import { TabsApi } from '../../api/TabsApi';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
-import { Search, Users } from 'lucide-react'; // Icons
+import { Search, Users, X, ShoppingCart } from 'lucide-react'; // Icons
 import { useWebSocket } from '../../contexts/WebSocketContext';
 
 interface MemberListProps {
@@ -30,6 +30,7 @@ const MemberList: React.FC<MemberListProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSearchMode, setIsSearchMode] = useState<boolean>(false);
   
   // State for active tab members (now using WebSocket data)
   const [activeTabMembers, setActiveTabMembers] = useState<any[]>([]);
@@ -168,6 +169,21 @@ const MemberList: React.FC<MemberListProps> = ({
     setSearchQuery(e.target.value);
   };
 
+  const handleSearchIconClick = () => {
+    setIsSearchMode(true);
+    if (onViewModeChange) {
+      onViewModeChange(false); // Switch to all members mode
+    }
+  };
+
+  const handleCloseSearch = () => {
+    setIsSearchMode(false);
+    setSearchQuery('');
+    if (onViewModeChange) {
+      onViewModeChange(true); // Switch back to active tabs mode
+    }
+  };
+
   // Selection logic remains the same
   const handleMemberClick = (member: Member) => {
     onMemberSelect(member); // Propagate selection up
@@ -249,17 +265,52 @@ const MemberList: React.FC<MemberListProps> = ({
     <div className="member-list-container bg-white dark:bg-gray-800 rounded-lg shadow-sm flex flex-col h-96 overflow-hidden">
       {/* Header/Search Area */}
       <div className="p-3 border-b dark:border-gray-700 flex-shrink-0">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" size={16} />
-          <input
-            type="text"
-            placeholder="Search members..."
-            className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            aria-label="Search members"
-          />
-        </div>
+        {!isSearchMode && showActiveTabsOnly ? (
+          // Active tabs header with search icon
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShoppingCart size={16} className="text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Members with Active Tabs 
+                {activeTabMembers.length > 0 && (
+                  <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
+                    ({activeTabMembers.length})
+                  </span>
+                )}
+              </span>
+            </div>
+            <button
+              onClick={handleSearchIconClick}
+              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+              title="Search all members to create tab"
+            >
+              <Search size={16} />
+            </button>
+          </div>
+        ) : (
+          // Search mode
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" size={16} />
+            <input
+              type="text"
+              placeholder={showActiveTabsOnly ? "Search active tabs..." : "Search all members to create tab..."}
+              className="pl-10 pr-10 py-2 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              aria-label="Search members"
+              autoFocus
+            />
+            {showActiveTabsOnly && (
+              <button
+                onClick={handleCloseSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-0.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors"
+                title="Close search"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        )}
         {/* WebSocket indicator - commented out for cleaner UI */}
         {/* {isConnected && (
           <div className="mt-2 flex items-center text-xs text-green-700 dark:text-green-400">
