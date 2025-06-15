@@ -68,6 +68,7 @@ button:focus-visible {
 } */
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/scrollbar.css";
 
 @custom-variant dark (&:is(.dark *));
 

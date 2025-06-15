@@ -113,9 +113,9 @@ const MemberRankings: React.FC = () => {
     // Only apply special styling if sorted by totalHours (default ranking)
     if (sortField === 'totalHours' && sortDirection === 'desc') {
       switch (index) {
-        case 0: return "bg-yellow-50 border-l-4 border-yellow-400";
-        case 1: return "bg-gray-50 border-l-4 border-gray-400";
-        case 2: return "bg-orange-50 border-l-4 border-orange-400";
+        case 0: return "bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400";
+        case 1: return "bg-gray-50 dark:bg-gray-700/50 border-l-4 border-gray-400";
+        case 2: return "bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-400";
         default: return "";
       }
     }
@@ -162,10 +162,10 @@ const MemberRankings: React.FC = () => {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white
-                                  ${idx === 0 ? 'bg-yellow-500' : 
-                                    idx === 1 ? 'bg-gray-500' : 
-                                    'bg-orange-500'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold
+                                  ${idx === 0 ? 'bg-yellow-500 text-white' : 
+                                    idx === 1 ? 'bg-gray-500 text-white' : 
+                                    'bg-orange-500 text-white'}`}>
                       {idx + 1}
                     </div>
                     <div className="ml-3">

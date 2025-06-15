@@ -1,15 +1,16 @@
 // src/components/MemberList/MemberCard.tsx
 import React from 'react';
 import { Member } from '../../types/Member';
-import { CheckCircle, XCircle } from 'lucide-react'; // Icons for status
+import { CheckCircle, XCircle, ShoppingCart } from 'lucide-react'; // Icons for status
 
 interface MemberCardProps {
   member: Member;
   isSelected: boolean;
   onClick: (member: Member) => void; // Use existing handler type
+  hasActiveTab?: boolean; // New prop to indicate active tab
 }
 
-const MemberCard: React.FC<MemberCardProps> = ({ member, isSelected, onClick }) => {
+const MemberCard: React.FC<MemberCardProps> = ({ member, isSelected, onClick, hasActiveTab = false }) => {
   // Format name based on available fields
   const getDisplayName = () => {
     if (member.member_first_name || member.member_last_name) {
@@ -51,13 +52,17 @@ const MemberCard: React.FC<MemberCardProps> = ({ member, isSelected, onClick }) 
         )}
       </div>
 
-      {/* Status Indicator (Optional) */}
-      {/* <div className={`ml-2 flex-shrink-0 ${isActive ? 'text-green-500' : 'text-red-500'}`} title={isActive ? 'Active' : 'Inactive'}>
-        {isActive ? <CheckCircle size={16} /> : <XCircle size={16} />}
-      </div> */}
-       <div className={`ml-2 flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
-           {isActive ? 'Active' : 'Inactive'}
-       </div>
+      {/* Status Indicator */}
+      {hasActiveTab ? (
+        <div className="ml-2 flex-shrink-0 flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
+          <ShoppingCart size={12} />
+          <span>Active Tab</span>
+        </div>
+      ) : (
+        <div className={`ml-2 flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
+          {isActive ? 'Active' : 'Inactive'}
+        </div>
+      )}
     </div>
   );
 };

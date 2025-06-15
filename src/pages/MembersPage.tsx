@@ -22,13 +22,6 @@ const MembersPage: React.FC = () => {
   return (
     <Layout>
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
-        {/* WebSocket Status Indicator */}
-        {isConnected && (
-          <div className="absolute top-20 right-6 flex items-center">
-            <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">Real-time updates connected</span>
-          </div>
-        )}
 
         {/* Member List Section - Left Sidebar */}
         <div className="lg:w-1/4 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col h-full">

@@ -115,7 +115,7 @@ const PcGrid: React.FC<PcGridProps> = ({
           </div>
           <div className="flex flex-col gap-12">
             {/* First 2 rows (PC01-PC10) */}
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-5 gap-3 w-[548px]">
               {standardRoomPcs.slice(0, 10).map((pc) => (
                 <PcCard
                   key={pc.pc_id}
@@ -126,7 +126,7 @@ const PcGrid: React.FC<PcGridProps> = ({
               ))}
             </div>
             {/* Last 2 rows (PC11-PC20) */}
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-5 gap-3 w-[548px]">
               {standardRoomPcs.slice(10, 20).map((pc) => (
                 <PcCard
                   key={pc.pc_id}

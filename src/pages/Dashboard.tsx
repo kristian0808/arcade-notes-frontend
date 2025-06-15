@@ -262,6 +262,49 @@ const Dashboard: React.FC = () => {
       setTabError(null); // Clear error if no member selected
       return;
     }
+
+    // First, check if we have WebSocket data for this member
+    if (activeTabsData && activeTabsData.activeMembersWithTabs) {
+      const existingTab = activeTabsData.activeMembersWithTabs.find(
+        tabData => tabData.memberId === memberId
+      );
+      
+      if (existingTab) {
+        // WebSocket confirms tab exists - now get full details including items
+        console.log("WebSocket confirms active tab exists - loading full details");
+        setIsCheckingTab(true);
+        setTabError(null);
+        
+        try {
+          const response = await TabsApi.getActiveTabForMember(memberId);
+          if (response.success && response.data) {
+            if ('active' in response.data && response.data.active === false) {
+              setActiveTab(null);
+            } else {
+              setActiveTab(response.data as Tab);
+            }
+          } else {
+            setTabError(response.error || 'Failed to load tab details');
+          }
+        } catch (error: any) {
+          console.error('Error loading tab details:', error);
+          setTabError(error.message || 'An unexpected error occurred loading tab');
+        } finally {
+          setIsCheckingTab(false);
+        }
+        return;
+      } else {
+        // Member not in active tabs list - they don't have an active tab
+        console.log("Member not in WebSocket active tabs - no tab exists");
+        setActiveTab(null);
+        setTabError(null);
+        setIsCheckingTab(false);
+        return;
+      }
+    }
+
+    // Fallback to API call only if WebSocket data is not available
+    console.log("WebSocket data not available - falling back to API call");
     setIsCheckingTab(true); // Use dedicated loading state
     setActiveTab(null); // Clear previous tab while checking
     setTabError(null); // Clear previous errors
@@ -288,7 +331,7 @@ const Dashboard: React.FC = () => {
     } finally {
       setIsCheckingTab(false); // Turn off loading state
     }
-  }, []); // No dependencies needed here
+  }, [activeTabsData]); // Add activeTabsData as dependency
 
 
   // --- Event Handlers ---

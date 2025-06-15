@@ -87,7 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-indigo-800 dark:border-gray-700 flex-shrink-0">
           {!sidebarCollapsed && (
-            <h1 className="text-xl font-bold whitespace-nowrap">iCafe Notes</h1>
+            <h1 className="text-xl font-bold whitespace-nowrap">Arcade Gaming Zone</h1>
           )}
           <button
             onClick={toggleSidebar}
