@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, CreditCard, Wallet, Banknote, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { Tab, PaymentMethod, PaymentResponse, PaymentStatus } from '../../types/Tab';
+import { Tab, PaymentMethod } from '../../types/Tab';
 
 interface EnhancedPaymentModalProps {
   tab: Tab;
@@ -21,12 +21,16 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   
+  // Cash payment calculator state
+  const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
+  
   // Reset state when the modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedPaymentMethod(PaymentMethod.CASH);
       setError(null);
       setShowConfirmation(false);
+      setPaymentAmount('');
     }
   }, [isOpen]);
 
@@ -50,13 +54,13 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
   };
 
   // Get payment status styling
-  const getPaymentStatusStyle = (status: PaymentStatus) => {
+  const getPaymentStatusStyle = (status: string) => {
     switch (status) {
-      case PaymentStatus.PAID:
+      case 'paid':
         return { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' };
-      case PaymentStatus.PARTIAL:
+      case 'partial':
         return { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' };
-      case PaymentStatus.FAILED:
+      case 'failed':
         return { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' };
       default:
         return { icon: Clock, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200' };
@@ -67,10 +71,42 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
   const handlePaymentMethodSelect = (method: PaymentMethod) => {
     setSelectedPaymentMethod(method);
     setError(null);
+    // Reset payment amount when switching from cash to other methods
+    if (method !== PaymentMethod.CASH) {
+      setPaymentAmount('');
+    }
+  };
+  
+  // Cash calculator functions
+  const commonPayments = [1000, 2000, 3000, 5000, 10000];
+  
+  const calculateChange = () => {
+    if (paymentAmount === '' || typeof paymentAmount !== 'number') return 0;
+    const change = paymentAmount - tab.totalAmount;
+    return change > 0 ? change : 0;
+  };
+  
+  const isCashPaymentValid = () => {
+    if (selectedPaymentMethod !== PaymentMethod.CASH) return true;
+    return typeof paymentAmount === 'number' && paymentAmount >= tab.totalAmount;
   };
 
   // Handle payment confirmation
   const handleConfirmPayment = () => {
+    // Validate cash payment if cash is selected
+    if (selectedPaymentMethod === PaymentMethod.CASH) {
+      if (paymentAmount === '' || typeof paymentAmount !== 'number') {
+        setError('Please enter a valid payment amount');
+        return;
+      }
+      
+      if (paymentAmount < tab.totalAmount) {
+        setError('Payment amount must be at least the total amount');
+        return;
+      }
+    }
+    
+    setError(null);
     setShowConfirmation(true);
   };
 
@@ -134,7 +170,7 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
           </div>
           
           {/* Payment Status */}
-          {tab.paymentStatus && tab.paymentStatus !== PaymentStatus.PENDING && (
+          {tab.paymentStatus && tab.paymentStatus !== 'pending' && (
             <div className={`flex items-center gap-2 p-2 rounded ${getPaymentStatusStyle(tab.paymentStatus).bg} ${getPaymentStatusStyle(tab.paymentStatus).border} border`}>
               {React.createElement(getPaymentStatusStyle(tab.paymentStatus).icon, { 
                 size: 16, 
@@ -218,6 +254,66 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
               </div>
             </div>
 
+            {/* Cash Calculator - Only show when cash payment is selected */}
+            {selectedPaymentMethod === PaymentMethod.CASH && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Cash Payment Calculator</h3>
+                
+                {/* Payment Amount Input */}
+                <div className="mb-4">
+                  <label htmlFor="paymentAmount" className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Amount
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="paymentAmount"
+                      type="number"
+                      value={paymentAmount}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setPaymentAmount(value === '' ? '' : Number(value));
+                        setError(null); // Clear error on input change
+                      }}
+                      className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
+                      placeholder="Enter amount"
+                      disabled={isProcessing}
+                    />
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">L</span>
+                  </div>
+                </div>
+                
+                {/* Quick Amount Buttons */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 mb-2">Common Amounts:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {commonPayments.map(amount => (
+                      <button
+                        key={amount}
+                        onClick={() => {
+                          setPaymentAmount(amount);
+                          setError(null); // Clear error when selecting a preset amount
+                        }}
+                        disabled={isProcessing}
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {formatCurrency(amount)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Change Display */}
+                <div className="bg-green-50 p-3 rounded-md border border-green-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Change to return:</span>
+                    <span className="text-lg font-semibold text-green-600">
+                      {paymentAmount !== '' ? formatCurrency(calculateChange()) : '—'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
               <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
@@ -237,7 +333,7 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
               </button>
               <button
                 onClick={handleConfirmPayment}
-                disabled={isProcessing}
+                disabled={isProcessing || !isCashPaymentValid()}
                 className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue
@@ -263,9 +359,22 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Amount:</span>
+                    <span className="text-gray-600">Total Amount:</span>
                     <span className="font-medium">{formatCurrency(tab.totalAmount)}</span>
                   </div>
+                  {selectedPaymentMethod === PaymentMethod.CASH && paymentAmount !== '' && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Payment Amount:</span>
+                        <span className="font-medium">{formatCurrency(Number(paymentAmount))}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Change to Return:</span>
+                        <span className="font-medium text-green-600">{formatCurrency(calculateChange())}</span>
+                      </div>
+                      <div className="border-t border-gray-200 pt-2 mt-2"></div>
+                    </>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">Member:</span>
                     <span className="font-medium">{tab.memberAccount}</span>
