@@ -9,6 +9,7 @@ import ErrorMessage from '../common/ErrorMessage';
 import CustomProductModal from './CustomProductModal';
 import PaymentModal from './PaymentModal';
 import EnhancedPaymentModal from './EnhancedPaymentModal';
+import PaymentSuccessModal from './PaymentSuccessModal';
 import { Search, PlusCircle, MinusCircle, Trash2, XCircle, ShoppingCart, PlusSquare, Wallet } from 'lucide-react'; // Added Wallet icon
 
 interface TabViewProps {
@@ -16,9 +17,10 @@ interface TabViewProps {
   onCloseTab: () => void; // Propagate close action
   onTabUpdated: (tab: Tab) => void; // Propagate updates
   isClosing?: boolean; // Optional flag for close loading state
+  onClearTabView?: () => void; // Clear tab view without API call (for already closed tabs)
 }
 
-const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClosing = false }) => {
+const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClosing = false, onClearTabView }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -30,6 +32,17 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   // Add state for the payment modal
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
+  
+  // Add state for success modal
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+  const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | null>(null);
+
+  // Helper functions for tab state
+  const isTabPaid = () => tab.paymentStatus === 'paid';
+  const isTabPartial = () => tab.paymentStatus === 'partial';
+  const hasFailedItems = () => tab.failedItems && tab.failedItems.length > 0;
+  const canModifyItems = () => !isTabPaid() && tab.status === 'active';
+  const canProcessPayment = () => !isTabPaid() && tab.items.length > 0 && tab.status === 'active';
 
   // Handle payment completion - Enhanced version
   const handlePaymentComplete = async (paymentData: { paymentMethod: PaymentMethod }) => {
@@ -49,22 +62,14 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
         
         // Handle different payment outcomes
         if (paymentResponse.success) {
-          // Show success message based on payment status
-          if (paymentResponse.paymentStatus === 'paid') {
-            console.log('Payment completed successfully!');
-            // Refresh the tab data
-            const refreshResponse = await TabsApi.getTabById(tab.id);
-            if (refreshResponse.success && refreshResponse.data) {
-              onTabUpdated(refreshResponse.data);
-            }
-          } else if (paymentResponse.paymentStatus === 'partial') {
-            console.log(`Partial payment: ${paymentResponse.totalProcessed} items processed, ${paymentResponse.totalFailed} failed`);
-            alert(`Partial payment completed: ${paymentResponse.message}`);
-            // Refresh the tab data to show failed items
-            const refreshResponse = await TabsApi.getTabById(tab.id);
-            if (refreshResponse.success && refreshResponse.data) {
-              onTabUpdated(refreshResponse.data);
-            }
+          // Store payment response and show success modal
+          setPaymentResponse(paymentResponse);
+          setShowSuccessModal(true);
+          
+          // Refresh the tab data regardless of status
+          const refreshResponse = await TabsApi.getTabById(tab.id);
+          if (refreshResponse.success && refreshResponse.data) {
+            onTabUpdated(refreshResponse.data);
           }
         } else {
           setItemError(paymentResponse.message || 'Payment failed');
@@ -79,6 +84,24 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
       setIsProcessingPayment(false);
       setShowPaymentModal(false);
     }
+  };
+
+  // Handle success modal close
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    
+    // If payment was fully successful, clear the tab view without API call
+    // The backend already closed the tab during payment processing
+    if (paymentResponse?.paymentStatus === 'paid') {
+      // Use clear function if available, otherwise fallback to onCloseTab
+      if (onClearTabView) {
+        onClearTabView(); // Clear UI state without API call
+      } else {
+        onCloseTab(); // Fallback to original behavior
+      }
+    }
+    
+    setPaymentResponse(null);
   };
 
   // Handle retry payment for failed items
@@ -224,18 +247,20 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
       <div className="flex items-center flex-shrink-0 ml-2">
         <button
           onClick={() => handleUpdateQuantity(index, item.quantity - 1)}
-          disabled={isItemLoading || item.quantity <= 1}
+          disabled={isItemLoading || item.quantity <= 1 || !canModifyItems()}
           className="p-1 text-gray-400 dark:text-gray-500 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          aria-label="Decrease quantity"
+          aria-label={!canModifyItems() ? "Cannot modify paid tab" : "Decrease quantity"}
+          title={!canModifyItems() ? "Cannot modify paid tab" : "Decrease quantity"}
         >
           <MinusCircle size={18} />
         </button>
         <span className="mx-2 text-sm font-medium w-5 text-center tabular-nums text-gray-900 dark:text-gray-100">{item.quantity}</span>
         <button
           onClick={() => handleUpdateQuantity(index, item.quantity + 1)}
-          disabled={isItemLoading}
+          disabled={isItemLoading || !canModifyItems()}
           className="p-1 text-gray-400 dark:text-gray-500 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          aria-label="Increase quantity"
+          aria-label={!canModifyItems() ? "Cannot modify paid tab" : "Increase quantity"}
+          title={!canModifyItems() ? "Cannot modify paid tab" : "Increase quantity"}
         >
           <PlusCircle size={18} />
         </button>
@@ -244,9 +269,10 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
         </span>
          <button
           onClick={() => handleRemoveItem(index)}
-          disabled={isItemLoading}
+          disabled={isItemLoading || !canModifyItems()}
           className="ml-3 p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          aria-label="Remove item"
+          aria-label={!canModifyItems() ? "Cannot modify paid tab" : "Remove item"}
+          title={!canModifyItems() ? "Cannot modify paid tab" : "Remove item"}
         >
           <Trash2 size={16} />
         </button>
@@ -266,6 +292,16 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
           onPaymentComplete={handlePaymentComplete}
           isProcessing={isProcessingPayment}
         />
+
+        {/* Payment Success Modal */}
+        {paymentResponse && (
+          <PaymentSuccessModal
+            isOpen={showSuccessModal}
+            onClose={handleSuccessModalClose}
+            paymentResponse={paymentResponse}
+            autoCloseDelay={4000}
+          />
+        )}
 
         {/* Header */}
         <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start flex-shrink-0">
@@ -292,23 +328,23 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
                  </p>
             </div>
             <div className="flex gap-2">
-              {/* Retry Payment button for failed items */}
-              {tab.failedItems && tab.failedItems.length > 0 && (
+              {/* Retry Payment button - only for partial payments with failed items */}
+              {isTabPartial() && hasFailedItems() && (
                 <button
                   onClick={() => setShowPaymentModal(true)}
                   disabled={isItemLoading || isClosing || isProcessingPayment}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-yellow-600 text-white rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                 >
                   <Wallet size={14}/>
-                  Retry Payment
+                  Retry ({tab.failedItems?.length} items)
                 </button>
               )}
               
-              {/* Pay button for active tabs */}
-              {(!tab.failedItems || tab.failedItems.length === 0) && (!tab.paymentStatus || tab.paymentStatus === 'pending') && (
+              {/* Process Payment button - only for unpaid tabs with items */}
+              {canProcessPayment() && !isTabPartial() && (
                 <button
                   onClick={() => setShowPaymentModal(true)}
-                  disabled={isItemLoading || isClosing || tab.items.length === 0 || isProcessingPayment}
+                  disabled={isItemLoading || isClosing || isProcessingPayment}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                 >
                   <Wallet size={14}/>
@@ -316,7 +352,7 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
                 </button>
               )}
               
-              {/* Close tab button - only show for paid tabs or empty tabs */}
+              {/* Close tab button */}
               <button
                 onClick={onCloseTab}
                 disabled={isItemLoading || isClosing}
@@ -343,18 +379,18 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
             <button
               type="button"
               onClick={() => setShowCustomModal(true)}
-              disabled={isItemLoading || isClosing}
+              disabled={isItemLoading || isClosing || !canModifyItems()}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 disabled:opacity-50 disabled:hover:text-gray-400"
-              title="Add Custom Product"
+              title={!canModifyItems() ? "Cannot modify paid tab" : "Add Custom Product"}
             >
               <PlusSquare size={20} />
             </button>
             <input
               type="text"
-              placeholder="Search products to add..."
+              placeholder={!canModifyItems() ? "Tab is paid - no modifications allowed" : "Search products to add..."}
               value={searchQuery}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-              disabled={isItemLoading || isClosing}
+              disabled={isItemLoading || isClosing || !canModifyItems()}
               className="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             {isSearching && (
@@ -363,7 +399,7 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
                 </div>
             )}
             {/* Search Results Dropdown */}
-            {!isSearching && searchResults.length > 0 && (
+            {!isSearching && searchResults.length > 0 && canModifyItems() && (
                 <div className="absolute top-full left-3 right-3 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
                     {searchResults.map(product => (
                         <div
@@ -429,15 +465,34 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
                  </div>
                </div>
                
-               {/* Bottom Pay button for easy access */}
-               <button
-                 onClick={() => setShowPaymentModal(true)}
-                 disabled={isItemLoading || isClosing}
-                 className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-               >
-                 <Wallet size={16}/>
-                 Process Payment
-               </button>
+               {/* Payment buttons - dynamic based on tab state */}
+               {isTabPartial() && hasFailedItems() && (
+                 <button
+                   onClick={() => setShowPaymentModal(true)}
+                   disabled={isItemLoading || isClosing || isProcessingPayment}
+                   className="w-full py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                 >
+                   <Wallet size={16}/>
+                   Retry Payment ({tab.failedItems?.length} items)
+                 </button>
+               )}
+               
+               {canProcessPayment() && !isTabPartial() && (
+                 <button
+                   onClick={() => setShowPaymentModal(true)}
+                   disabled={isItemLoading || isClosing || isProcessingPayment}
+                   className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                 >
+                   <Wallet size={16}/>
+                   Process Payment
+                 </button>
+               )}
+               
+               {isTabPaid() && (
+                 <div className="w-full py-2 bg-green-100 text-green-800 rounded-md text-center text-sm font-medium">
+                   ✓ Payment Completed
+                 </div>
+               )}
              </div>
         )}
 
