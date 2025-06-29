@@ -1,6 +1,6 @@
 // src/components/Tabs/TabView.tsx
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Tab, TabItem } from '../../types/Tab';
+import { Tab, TabItem, PaymentResponse, PaymentMethod } from '../../types/Tab';
 import { Product } from '../../types/Product';
 import { ProductsApi } from '../../api/ProductApi';
 import { TabsApi } from '../../api/TabsApi';
@@ -8,6 +8,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import ErrorMessage from '../common/ErrorMessage';
 import CustomProductModal from './CustomProductModal';
 import PaymentModal from './PaymentModal';
+import EnhancedPaymentModal from './EnhancedPaymentModal';
 import { Search, PlusCircle, MinusCircle, Trash2, XCircle, ShoppingCart, PlusSquare, Wallet } from 'lucide-react'; // Added Wallet icon
 
 interface TabViewProps {
@@ -30,19 +31,84 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
 
-  // Handle payment completion
-  const handlePaymentComplete = async (paymentAmount: number, changeAmount: number) => {
+  // Handle payment completion - Enhanced version
+  const handlePaymentComplete = async (paymentData: { paymentMethod: PaymentMethod }) => {
     setIsProcessingPayment(true);
+    setItemError(null);
+    
     try {
-      // Here you would typically make an API call to record the payment
-      // For now, we'll just simulate a delay and close the tab
-      setTimeout(async () => {
-        await onCloseTab(); // Close the tab after payment
-        setShowPaymentModal(false); // Close the modal
-        setIsProcessingPayment(false);
-      }, 1000);
-    } catch (error) {
+      console.log('Processing payment:', paymentData);
+      
+      // Call the new payment API
+      const response = await TabsApi.processPayment(tab.id, {
+        paymentMethod: paymentData.paymentMethod
+      });
+      
+      if (response.success && response.data) {
+        const paymentResponse: PaymentResponse = response.data;
+        
+        // Handle different payment outcomes
+        if (paymentResponse.success) {
+          // Show success message based on payment status
+          if (paymentResponse.paymentStatus === 'paid') {
+            console.log('Payment completed successfully!');
+            // Refresh the tab data
+            const refreshResponse = await TabsApi.getTabById(tab.id);
+            if (refreshResponse.success && refreshResponse.data) {
+              onTabUpdated(refreshResponse.data);
+            }
+          } else if (paymentResponse.paymentStatus === 'partial') {
+            console.log(`Partial payment: ${paymentResponse.totalProcessed} items processed, ${paymentResponse.totalFailed} failed`);
+            alert(`Partial payment completed: ${paymentResponse.message}`);
+            // Refresh the tab data to show failed items
+            const refreshResponse = await TabsApi.getTabById(tab.id);
+            if (refreshResponse.success && refreshResponse.data) {
+              onTabUpdated(refreshResponse.data);
+            }
+          }
+        } else {
+          setItemError(paymentResponse.message || 'Payment failed');
+        }
+      } else {
+        setItemError(response.error || 'Payment processing failed');
+      }
+    } catch (error: any) {
       console.error('Payment processing error:', error);
+      setItemError(error.message || 'Payment processing failed');
+    } finally {
+      setIsProcessingPayment(false);
+      setShowPaymentModal(false);
+    }
+  };
+
+  // Handle retry payment for failed items
+  const handleRetryPayment = async (paymentMethod: PaymentMethod) => {
+    setIsProcessingPayment(true);
+    setItemError(null);
+    
+    try {
+      const response = await TabsApi.retryFailedPayment(tab.id, { paymentMethod });
+      
+      if (response.success && response.data) {
+        const paymentResponse: PaymentResponse = response.data;
+        
+        if (paymentResponse.success) {
+          console.log('Retry payment completed!');
+          // Refresh the tab data
+          const refreshResponse = await TabsApi.getTabById(tab.id);
+          if (refreshResponse.success && refreshResponse.data) {
+            onTabUpdated(refreshResponse.data);
+          }
+        } else {
+          setItemError(paymentResponse.message || 'Retry payment failed');
+        }
+      } else {
+        setItemError(response.error || 'Retry payment failed');
+      }
+    } catch (error: any) {
+      console.error('Retry payment error:', error);
+      setItemError(error.message || 'Retry payment failed');
+    } finally {
       setIsProcessingPayment(false);
     }
   };
@@ -192,8 +258,8 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   return (
     // Use flex-col and h-full if this component should fill its container
     <div className="tab-view relative flex flex-col h-full">
-        {/* Payment Modal */}
-        <PaymentModal
+        {/* Enhanced Payment Modal */}
+        <EnhancedPaymentModal
           tab={tab}
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
@@ -204,25 +270,53 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
         {/* Header */}
         <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start flex-shrink-0">
             <div>
-                 <h3 className="font-semibold text-base text-gray-800 dark:text-gray-200">
-                    Active Tab - {tab.memberAccount}
-                 </h3>
+                 <div className="flex items-center gap-2 mb-1">
+                   <h3 className="font-semibold text-base text-gray-800 dark:text-gray-200">
+                      Active Tab - {tab.memberAccount}
+                   </h3>
+                   {/* Payment Status Badge */}
+                   {tab.paymentStatus && tab.paymentStatus !== 'pending' && (
+                     <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                       tab.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                       tab.paymentStatus === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                       tab.paymentStatus === 'failed' ? 'bg-red-100 text-red-800' :
+                       'bg-gray-100 text-gray-800'
+                     }`}>
+                       {tab.paymentStatus.charAt(0).toUpperCase() + tab.paymentStatus.slice(1)}
+                     </span>
+                   )}
+                 </div>
                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Opened: {new Date(tab.createdAt).toLocaleString()} {tab.pcName && `(PC: ${tab.pcName})`}
+                    {tab.paidAt && ` • Paid: ${new Date(tab.paidAt).toLocaleString()}`}
                  </p>
             </div>
             <div className="flex gap-2">
-              {/* Pay button
-              <button
-                onClick={() => setShowPaymentModal(true)}
-                disabled={isItemLoading || isClosing || tab.items.length === 0}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-              >
-                <Wallet size={14}/>
-                Pay
-              </button> */}
+              {/* Retry Payment button for failed items */}
+              {tab.failedItems && tab.failedItems.length > 0 && (
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  disabled={isItemLoading || isClosing || isProcessingPayment}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-yellow-600 text-white rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Wallet size={14}/>
+                  Retry Payment
+                </button>
+              )}
               
-              {/* Close tab button */}
+              {/* Pay button for active tabs */}
+              {(!tab.failedItems || tab.failedItems.length === 0) && (!tab.paymentStatus || tab.paymentStatus === 'pending') && (
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  disabled={isItemLoading || isClosing || tab.items.length === 0 || isProcessingPayment}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Wallet size={14}/>
+                  Process Payment
+                </button>
+              )}
+              
+              {/* Close tab button - only show for paid tabs or empty tabs */}
               <button
                 onClick={onCloseTab}
                 disabled={isItemLoading || isClosing}

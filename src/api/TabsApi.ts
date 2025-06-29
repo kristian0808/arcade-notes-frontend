@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 import { ApiResponse } from '../types/ApiResponse';
-import { Tab, CreateTabRequest, TabItem, UpdateTabItemQuantityRequest } from '../types/Tab';
+import { Tab, CreateTabRequest, TabItem, UpdateTabItemQuantityRequest, ProcessPaymentRequest, PaymentResponse } from '../types/Tab';
 
 // Removed debugging console.log
 
@@ -134,6 +134,38 @@ export const TabsApi = {
             const err = error as Error;
             return {
                 error: err.message || 'Failed to fetch active members with tabs',
+                success: false
+            };
+        }
+    },
+
+    // Process payment for a tab
+    processPayment: async (tabId: string, request: ProcessPaymentRequest): Promise<ApiResponse<PaymentResponse>> => {
+        try {
+            console.log(`Processing payment for tab ${tabId} with method: ${request.paymentMethod}`);
+            const response = await apiClient.post(`/tabs/${tabId}/payment`, request);
+            return { data: response.data, success: true };
+        } catch (error) {
+            console.error(`Payment processing failed for tab ${tabId}:`, error);
+            const err = error as any;
+            return {
+                error: err.response?.data?.message || err.message || 'Failed to process payment',
+                success: false
+            };
+        }
+    },
+
+    // Retry failed payment items
+    retryFailedPayment: async (tabId: string, request: ProcessPaymentRequest): Promise<ApiResponse<PaymentResponse>> => {
+        try {
+            console.log(`Retrying failed payment for tab ${tabId} with method: ${request.paymentMethod}`);
+            const response = await apiClient.post(`/tabs/${tabId}/payment/retry`, request);
+            return { data: response.data, success: true };
+        } catch (error) {
+            console.error(`Payment retry failed for tab ${tabId}:`, error);
+            const err = error as any;
+            return {
+                error: err.response?.data?.message || err.message || 'Failed to retry payment',
                 success: false
             };
         }
