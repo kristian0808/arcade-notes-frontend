@@ -17,9 +17,10 @@ interface TabViewProps {
   onCloseTab: () => void; // Propagate close action
   onTabUpdated: (tab: Tab) => void; // Propagate updates
   isClosing?: boolean; // Optional flag for close loading state
+  onClearTabView?: () => void; // Clear tab view without API call (for already closed tabs)
 }
 
-const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClosing = false }) => {
+const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClosing = false, onClearTabView }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -89,9 +90,15 @@ const TabView: React.FC<TabViewProps> = ({ tab, onCloseTab, onTabUpdated, isClos
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     
-    // If payment was fully successful, close the tab view
+    // If payment was fully successful, clear the tab view without API call
+    // The backend already closed the tab during payment processing
     if (paymentResponse?.paymentStatus === 'paid') {
-      onCloseTab(); // This will close the tab view and return to member selection
+      // Use clear function if available, otherwise fallback to onCloseTab
+      if (onClearTabView) {
+        onClearTabView(); // Clear UI state without API call
+      } else {
+        onCloseTab(); // Fallback to original behavior
+      }
     }
     
     setPaymentResponse(null);

@@ -418,6 +418,13 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Clear tab view without API call (for already closed tabs)
+  const handleClearTabView = () => {
+    setActiveTab(null); // Clear the active tab without API call
+    // Trigger refresh of active tab members list without full data refresh
+    setRefreshActiveTabsTrigger(prev => prev + 1);
+  };
+
   // Callback passed to TabView (and potentially NotesList if notes affect tabs)
   const handleTabUpdated = (updatedTab: Tab) => {
     setActiveTab(updatedTab); // Update the active tab state
@@ -573,6 +580,7 @@ const Dashboard: React.FC = () => {
               onCreateTab={handleCreateTab}
               onCloseTab={handleCloseTab}
               onTabUpdated={handleTabUpdated}
+              onClearTabView={handleClearTabView}
               // Pass the members list if TabManager needs it for context fallback
               // members={members} // Uncomment and adjust TabManager if needed
               className="flex-grow" // Make TabManager fill available space

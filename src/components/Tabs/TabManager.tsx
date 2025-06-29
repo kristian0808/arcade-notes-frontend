@@ -19,6 +19,7 @@ interface TabManagerProps {
     onCreateTab: () => void; // Callback to trigger tab creation
     onCloseTab: () => void; // Callback to trigger tab closing
     onTabUpdated: (tab: Tab) => void; // Callback when tab is updated internally
+    onClearTabView?: () => void; // Clear tab view without API call
     className?: string;
 }
 
@@ -33,6 +34,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
     onCreateTab,
     onCloseTab,
     onTabUpdated,
+    onClearTabView,
     className = ''
 }) => {
     // Determine the member context for display/actions
@@ -108,6 +110,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
                     tab={activeTab}
                     onCloseTab={onCloseTab}
                     onTabUpdated={onTabUpdated}
+                    onClearTabView={onClearTabView}
                     isClosing={isClosing} // Pass closing state to TabView
                 />
             </div>
