@@ -274,7 +274,7 @@ const EnhancedPaymentModal: React.FC<EnhancedPaymentModalProps> = ({
                         setPaymentAmount(value === '' ? '' : Number(value));
                         setError(null); // Clear error on input change
                       }}
-                      className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
+                      className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg text-gray-900 font-medium"
                       placeholder="Enter amount"
                       disabled={isProcessing}
                     />
