@@ -51,6 +51,12 @@ const MemberRankings: React.FC = () => {
   
   // Sort rankings when sort field or direction changes
   const sortedRankings = React.useMemo(() => {
+    // Only sort if user changed from default (totalHours desc) 
+    if (sortField === 'totalHours' && sortDirection === 'desc') {
+      // Backend already sorts by totalHours desc, return as-is
+      return rankings;
+    }
+    
     return [...rankings].sort((a, b) => {
       const aValue = a[sortField];
       const bValue = b[sortField];
